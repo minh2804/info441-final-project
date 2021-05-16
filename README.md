@@ -29,9 +29,7 @@ Stats: The stats will be pulled from the ***SQL database*** and then transferred
 
 ## Endpoints
 
-GET ```/add/<item id>``` - Shareable link for non-logged in user to add the item to their current session or a temporary account.
-
-POST ```/add/<item id>``` - Shareable link for logged in user.
+GET ```/add/<item id>``` - Shareable link for user to add an item to their current session or a temporary account.
 
 GET ```/import?user=id``` - Import non-logged in user data to a logged in user.
 
