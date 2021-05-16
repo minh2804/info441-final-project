@@ -8,6 +8,8 @@ As developers, we want to develop an application that serves our target audience
 
 # Technical Description
 
+![technical diagram](images/diagram.png)
+
 | Priority | User                    | Description                                                                                         |
 | -------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
 | P0       | As an email sender      | I want to create a shareable link, to share it with other people.                                   |
