@@ -16,34 +16,30 @@ As developers, we want to develop an application that serves our target audience
 | P3       | As a logged in user     | I want to be able to view my stats (items completed in a week, items overdue, longest streaks, etc) |
 
 ## Implementation Strategy
-<<<<<<< HEAD
 
-Email sender: The sender can create a shareable link to attach to their email. The shareable link will have the following resource path: ```/add/<random unique string>```. We will store the link’s unique random string in our MySQL
+Email sender: The sender can create a shareable link to attach to their email. The shareable link will have the following resource path: ```/add/<item id>```. We will store the link’s unique random string in our MySQL
 
-Email recipient: The email recipient can click on the ```/add/<random unique string>``` and it will add to their reminder list. If the user is logged in, then it will do it automatically.
-=======
-P0: The sender can create a shareable link to attach to their email. The shareable link will have the following resource path: /add/<random unique string>. We will store the link’s unique random string in our ***MySQL***
-
-P1: The email recipient can click on the ‘/add/<random unique string>’ and it will add to their reminder list. If the user is logged in, then it will do it automatically.
->>>>>>> f0a959ff987b70ec9e4caf28ca56a34998195c2b
+Email recipient: The email recipient can click on the ```/add/<item id>``` and it will add to their reminder list. If the user is logged in, then it will do it automatically.
 
 P2: If a user clicks on a shareable link and is not logged in, then it will ask the user for an email through an ***HTML*** form. Then a temporary account will be created in our ***MySQL database*** to store the item, login credentials of this temporary account will be sent to the provided email.
 
 P3: The user can import the data from another account, including the temporary account, through our ***SQL database***. Reminders will also be held in our ***SQL database*** and then populated on the front end using ***React***. Import can be done by requesting ‘/import?user=id’.
 
 Stats: The stats will be pulled from the ***SQL database*** and then transferred onto the front end using ***React***
+
 ## Endpoints
 
-GET ```/add/<item id>``` - For non-logged in user
-GET ```/import?user=id``` - Import non-logged in user data to a logged in user
-POST ```/add/<item id>``` - For logged in user
-PATCH ```/items?id=<item id>```
-DELETE ```/items?id=<item id>```
+GET ```/add/<item id>``` - Shareable link for non-logged in user to add the item to their current session or a temporary account.
+POST ```/add/<item id>``` - Shareable link for logged in user.
 
-GET ```/users?user=id```
-POST ```/users```
-POST ```/sessions```
-DELETE ```/sessions/mine```
+GET ```/import?user=id``` - Import non-logged in user data to a logged in user.
+PATCH ```/items?id=<item id>``` - Updates the item in the tasks database
+DELETE ```/items?id=<item id>``` - Deletes an item from the tasks database
+
+GET ```/users?user=id``` - Return an existing user
+POST ```/users``` - Create a new user
+POST ```/sessions``` - Create a new session
+DELETE ```/sessions/mine``` - End the current session
 
 ## Appendix
 
