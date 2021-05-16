@@ -16,15 +16,22 @@ As developers, we want to develop an application that serves our target audience
 | P3       | As a logged in user     | I want to be able to view my stats (items completed in a week, items overdue, longest streaks, etc) |
 
 ## Implementation Strategy
+<<<<<<< HEAD
 
 Email sender: The sender can create a shareable link to attach to their email. The shareable link will have the following resource path: ```/add/<random unique string>```. We will store the link’s unique random string in our MySQL
 
 Email recipient: The email recipient can click on the ```/add/<random unique string>``` and it will add to their reminder list. If the user is logged in, then it will do it automatically.
+=======
+P0: The sender can create a shareable link to attach to their email. The shareable link will have the following resource path: /add/<random unique string>. We will store the link’s unique random string in our ***MySQL***
 
-Non-logged in user: If a user clicks on a shareable link and is not logged in, then it will ask the user for an email. Then a temporary account will be created to store the item, login credentials of this temporary account will be sent to the provided email.
+P1: The email recipient can click on the ‘/add/<random unique string>’ and it will add to their reminder list. If the user is logged in, then it will do it automatically.
+>>>>>>> f0a959ff987b70ec9e4caf28ca56a34998195c2b
 
-Logged in user: The user can import the data from another account, including the temporary account. Import can be done by requesting ‘/import?user=id’.
+P2: If a user clicks on a shareable link and is not logged in, then it will ask the user for an email through an ***HTML*** form. Then a temporary account will be created in our ***MySQL database*** to store the item, login credentials of this temporary account will be sent to the provided email.
 
+P3: The user can import the data from another account, including the temporary account, through our ***SQL database***. Reminders will also be held in our ***SQL database*** and then populated on the front end using ***React***. Import can be done by requesting ‘/import?user=id’.
+
+Stats: The stats will be pulled from the ***SQL database*** and then transferred onto the front end using ***React***
 ## Endpoints
 
 GET ```/add/<item id>``` - For non-logged in user
