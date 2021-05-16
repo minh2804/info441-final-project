@@ -30,15 +30,21 @@ Stats: The stats will be pulled from the ***SQL database*** and then transferred
 ## Endpoints
 
 GET ```/add/<item id>``` - Shareable link for non-logged in user to add the item to their current session or a temporary account.
+
 POST ```/add/<item id>``` - Shareable link for logged in user.
 
 GET ```/import?user=id``` - Import non-logged in user data to a logged in user.
+
 PATCH ```/items?id=<item id>``` - Updates the item in the tasks database
+
 DELETE ```/items?id=<item id>``` - Deletes an item from the tasks database
 
 GET ```/users?user=id``` - Return an existing user
+
 POST ```/users``` - Create a new user
+
 POST ```/sessions``` - Create a new session
+
 DELETE ```/sessions/mine``` - End the current session
 
 ## Appendix
