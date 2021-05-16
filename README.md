@@ -17,7 +17,7 @@ As developers, we want to develop an application that serves our target audience
 
 ## Implementation Strategy
 
-Email sender: The sender can create a shareable link to attach to their email. The shareable link will have the following resource path: ```/add/<item id>```. We will store the link’s unique random string in our MySQL
+Email sender: The sender can create a shareable link to attach to their email. The shareable link will have the following resource path: ```/add/<item id>```. We will store the link’s unique random string in our ***MySQL***.
 
 Email recipient: The email recipient can click on the ```/add/<item id>``` and it will add to their reminder list. If the user is logged in, then it will do it automatically.
 
