@@ -8,21 +8,12 @@ As developers, we want to develop an application that serves our target audience
 
 # Technical Description
 
-Priority
-User
-Description
-P0
-As an email sender
-I want to create a shareable link, to share it with other people.
-P1
-As an email recipient
-I want to click on a link in the email, and it will automatically add to my reminder list.
-P2
-As a non-logged in user
-I want to create a bunch of reminders, and log in later.
-P3
-A logged in user
-I want to be able to view my stats (items completed in a week, items overdue, longest streaks, etc)
+| Priority | User                    | Description                                                                                         |
+|----------|-------------------------|-----------------------------------------------------------------------------------------------------|
+| P0       | As an email sender      | I want to create a shareable link, to share it with other people.                                   |
+| P1       | As an email recipient   | I want to click on a link in the email, and it will automatically add to my reminder list.          |
+| P2       | As a non-logged in user | I want to create a bunch of reminders, and log in later.                                            |
+| P3       | As a logged in user     | I want to be able to view my stats (items completed in a week, items overdue, longest streaks, etc) |
 
 ## Implementation Strategy
 Email sender: The sender can create a shareable link to attach to their email. The shareable link will have the following resource path: /add/<random unique string>. We will store the link’s unique random string in our MySQL
