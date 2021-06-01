@@ -8,7 +8,7 @@ As developers, we want to develop an application that serves our target audience
 
 # Technical Description
 
-![technical diagram](images/diagram.png)
+![technical diagram](media/diagram.png)
 
 | Priority | User                    | Description                                                                                         |
 | -------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
