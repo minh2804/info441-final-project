@@ -1,0 +1,43 @@
+CREATE TABLE IF NOT EXISTS User (
+	ID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	Username  VARCHAR(255) NOT NULL UNIQUE,
+	PassHash  CHAR(72) NOT NULL,
+	FirstName VARCHAR(255),
+	LastName  VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS TodoList (
+	ID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	UserID BIGINT NOT NULL,
+	Name VARCHAR(255) NOT NULL UNIQUE,
+	Description VARCHAR(1000),
+	IsComplete BOOL NOT NULL,
+	IsHidden BOOL NOT NULL,
+	CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	EditedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+	FOREIGN KEY (UserID) REFERENCES User (ID)
+);
+
+DELIMITER //
+CREATE PROCEDURE DeleteUser (IN p_ID BIGINT)
+BEGIN
+	IF NOT EXISTS (SELECT * FROM User WHERE ID = p_ID) THEN
+		SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'user not found';
+	END IF;
+	START TRANSACTION;
+	DELETE FROM TodoList WHERE UserID = p_ID;
+	DELETE FROM User WHERE ID = p_ID;
+	COMMIT;
+END;//
+DELIMITER ;
+
+-- Hard coded data
+INSERT IGNORE INTO User (ID, Username, PassHash) VALUES (1, 'admin', 'admin');
+INSERT IGNORE INTO TodoList (ID, UserID, Name, Description, IsComplete, IsHidden)
+VALUES
+	(1, 1, 'First task', 'First desc', TRUE, TRUE),
+	(2, 1, 'Second task', 'Second desc', TRUE, TRUE),
+	(3, 1, 'Third task', 'Third desc', TRUE, TRUE),
+	(4, 1, 'Fourth task', 'Fourth desc', FALSE, FALSE),
+	(5, 1, 'Fifth task', 'Fifth desc', FALSE, TRUE);
