@@ -2,6 +2,7 @@ package server
 
 import (
 	"database/sql"
+	"net/http"
 	"time"
 )
 
@@ -22,4 +23,8 @@ type TaskItem struct {
 
 type MysqlStore struct {
 	DB *sql.DB
+}
+
+func (sql *MysqlStore) TaskDeleteHandler(w http.ResponseWriter, r *http.Request) {
+
 }
