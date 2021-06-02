@@ -2,7 +2,7 @@ package tasks
 
 import (
 	"database/sql"
-	"info441-final-project/servers/app/models/users"
+	"info441-final-project/servers/todolist/models/users"
 )
 
 type MySQLStore struct {

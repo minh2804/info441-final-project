@@ -2,9 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"info441-final-project/servers/app/handlers"
-	"info441-final-project/servers/app/models/tasks"
-	"info441-final-project/servers/app/models/users"
+	"info441-final-project/servers/todolist/handlers"
+	"info441-final-project/servers/todolist/models/tasks"
+	"info441-final-project/servers/todolist/models/users"
 	"log"
 	"net/http"
 	"os"

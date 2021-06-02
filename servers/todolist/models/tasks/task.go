@@ -1,7 +1,7 @@
 package tasks
 
 import (
-	"info441-final-project/servers/app/models/users"
+	"info441-final-project/servers/todolist/models/users"
 	"time"
 )
 

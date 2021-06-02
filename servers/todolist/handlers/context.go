@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"info441-final-project/servers/app/models/tasks"
-	"info441-final-project/servers/app/models/users"
+	"info441-final-project/servers/todolist/models/tasks"
+	"info441-final-project/servers/todolist/models/users"
 	"net/http"
 )
 
