@@ -8,7 +8,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type SessionHandlerFunc func(http.ResponseWriter, *http.Request, *sessions.SessionState)
+// SessionHandlerFunc is a modifed function signature of http.HandlerFunc
+type SessionHandlerFunc func(http.ResponseWriter, *http.Request, sessions.SessionID, *sessions.SessionState)
 
 // Struct that allows this type to inherit all of the methods of http.ServeMux
 type SessionMux struct {
@@ -31,16 +32,16 @@ func (sm *SessionMux) HandleSessionFunc(pattern string, handlerFunc SessionHandl
 // The session state is essential an array of Task (i.e., todo list)
 func (sm *SessionMux) ensureSession(handlerFunc SessionHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		sessionState := &sessions.SessionState{}
-		_, err := sessions.GetState(r, sm.ctx.SigningKey, sm.ctx.SessionStore, sessionState)
+		currentSession := &sessions.SessionState{}
+		sessionID, err := sessions.GetState(r, sm.ctx.SigningKey, sm.ctx.SessionStore, currentSession)
 		if err != nil {
 			if err == sessions.ErrNoSessionID {
 				// Create a new session with an empty todo list for the session state
-				sessionState = sessions.NewTemporarySessionState()
-				if _, err := sessions.BeginSession(
+				currentSession = sessions.NewTemporarySessionState()
+				if sessionID, err = sessions.BeginSession(
 					sm.ctx.SigningKey,
 					sm.ctx.SessionStore,
-					sessionState,
+					currentSession,
 					w); err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
@@ -52,6 +53,6 @@ func (sm *SessionMux) ensureSession(handlerFunc SessionHandlerFunc) http.Handler
 				return
 			}
 		}
-		handlerFunc(w, r, sessionState)
+		handlerFunc(w, r, sessionID, currentSession)
 	}
 }

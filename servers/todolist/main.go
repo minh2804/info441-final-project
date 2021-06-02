@@ -91,13 +91,13 @@ func main() {
 	// Create handlers
 	r := middlewares.NewSessionMux(ctx)
 
-	// These handlers will ensure there is always a session,
-	// if the user is not logged in, then a new session will be created.
-	r.HandleSessionFunc("/helloworld", ctx.TodoList)
+	r.HandleFunc("/users", ctx.UsersHandler)
+	r.HandleSessionFunc("/users/", ctx.SpecificUserHandler)
 
-	// // These handlers are used handle user logins and creating session.
-	// r.HandleFunc("/v1/sessions", ctx.SessionsHandler)
-	// r.HandleFunc("/v1/sessions/", ctx.SpecificSessionHandler)
+	r.HandleFunc("/sessions", ctx.SessionsHandler)
+	r.HandleFunc("/sessions/", ctx.SpecificSessionHandler)
+
+	r.HandleSessionFunc("/helloworld", ctx.TodoList)
 
 	// Wrap with cors
 	wrappedMux := &middlewares.Cors{Handler: r}
