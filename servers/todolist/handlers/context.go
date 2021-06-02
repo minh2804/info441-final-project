@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"info441-final-project/servers/todolist/models/stats"
 	"info441-final-project/servers/todolist/models/tasks"
 	"info441-final-project/servers/todolist/models/users"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 type HandlerContext struct {
 	UserStore users.Store
 	TaskStore tasks.Store
+	StatStore stats.Store
 }
 
 const ContentTypeHeader = "Content-Type"

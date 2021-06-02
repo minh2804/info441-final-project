@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"info441-final-project/servers/todolist/handlers"
+	"info441-final-project/servers/todolist/models/stats"
 	"info441-final-project/servers/todolist/models/tasks"
 	"info441-final-project/servers/todolist/models/users"
 	"log"
@@ -54,9 +55,11 @@ func main() {
 	// Create context
 	userStore := &users.MySQLStore{Client: mysql}
 	taskStore := &tasks.MySQLStore{Client: mysql, UserStore: userStore}
+	statsStore := &stats.MySQLStore{Client: mysql, UserStore: userStore}
 	ctx := &handlers.HandlerContext{
 		UserStore: userStore,
 		TaskStore: taskStore,
+		StatStore: statsStore,
 	}
 
 	// Create handlers
