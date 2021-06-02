@@ -1,6 +1,7 @@
-package handlers
+package middlewares
 
 import (
+	"info441-final-project/servers/todolist/handlers"
 	"info441-final-project/servers/todolist/models/sessions"
 	"net/http"
 
@@ -11,12 +12,12 @@ type SessionHandlerFunc func(http.ResponseWriter, *http.Request, *sessions.Sessi
 
 // Struct that allows this type to inherit all of the methods of http.ServeMux
 type SessionMux struct {
-	ctx *HandlerContext
+	ctx *handlers.HandlerContext
 	mux.Router
 }
 
 // Constructor for a new instance of AuthenticatedMux
-func NewSessionMux(ctx *HandlerContext) *SessionMux {
+func NewSessionMux(ctx *handlers.HandlerContext) *SessionMux {
 	return &SessionMux{ctx: ctx}
 }
 

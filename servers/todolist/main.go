@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"info441-final-project/servers/todolist/handlers"
+	"info441-final-project/servers/todolist/middlewares"
 	"info441-final-project/servers/todolist/models/sessions"
 	"info441-final-project/servers/todolist/models/tasks"
 	"info441-final-project/servers/todolist/models/users"
@@ -88,11 +89,18 @@ func main() {
 	}
 
 	// Create handlers
-	r := handlers.NewSessionMux(ctx)
+	r := middlewares.NewSessionMux(ctx)
+
+	// These handlers will ensure there is always a session,
+	// if the user is not logged in, then a new session will be created.
 	r.HandleSessionFunc("/helloworld", ctx.TodoList)
 
+	// // These handlers are used handle user logins and creating session.
+	// r.HandleFunc("/v1/sessions", ctx.SessionsHandler)
+	// r.HandleFunc("/v1/sessions/", ctx.SpecificSessionHandler)
+
 	// Wrap with cors
-	wrappedMux := &handlers.Cors{Handler: r}
+	wrappedMux := &middlewares.Cors{Handler: r}
 
 	// Serve
 	log.Printf("server is listening at %s", ADDR)
