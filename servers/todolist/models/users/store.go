@@ -4,7 +4,12 @@ import (
 	"errors"
 )
 
+// ErrUserAlreadyExisted is returned from Store.Insert() when the given user
+// already existed in the database
 var ErrUserAlreadyExisted = errors.New("user already existed")
+
+// ErrUserNotFound is returned when a Store's getter function could not
+// find the requested user
 var ErrUserNotFound = errors.New("user not found")
 
 // Store represents a store for Users

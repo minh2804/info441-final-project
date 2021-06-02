@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Updates represents a single task of a user's todo list
+// Task represents a single task of a user's todo list
 type Task struct {
 	ID          int64       `json:"id"`
 	User        *users.User `json:"user"`

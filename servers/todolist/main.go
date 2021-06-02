@@ -3,14 +3,16 @@ package main
 import (
 	"database/sql"
 	"info441-final-project/servers/todolist/handlers"
+	"info441-final-project/servers/todolist/models/sessions"
 	"info441-final-project/servers/todolist/models/tasks"
 	"info441-final-project/servers/todolist/models/users"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 )
 
 // Entry point for the server
@@ -35,12 +37,36 @@ func main() {
 	// 	log.Fatal("No TLSKEY environment variable found")
 	// }
 
+	SESSIONKEY := os.Getenv("SESSIONKEY")
+	if len(SESSIONKEY) == 0 {
+		log.Fatal("No SESSIONKEY environment variable found")
+	}
+
+	REDISADDR := os.Getenv("REDISADDR")
+	if len(REDISADDR) == 0 {
+		log.Fatal("No REDISADDR environment variable found")
+	}
+
 	DSN := os.Getenv("DSN")
 	if len(DSN) == 0 {
 		log.Fatal("No DSN environment variable found")
 	}
 
+	// Connect to redis
+	log.Printf("connecting to Redis...")
+	redis := redis.NewClient(&redis.Options{
+		Addr:     REDISADDR,
+		Password: "",
+		DB:       0,
+	})
+	_, err := redis.Ping().Result()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("connected to Redis")
+
 	// Connect to MySQL
+	log.Printf("connecting to MySQL...")
 	mysql, err := sql.Open("mysql", DSN)
 	if err != nil {
 		log.Fatal(err)
@@ -55,13 +81,15 @@ func main() {
 	userStore := &users.MySQLStore{Client: mysql}
 	taskStore := &tasks.MySQLStore{Client: mysql, UserStore: userStore}
 	ctx := &handlers.HandlerContext{
-		UserStore: userStore,
-		TaskStore: taskStore,
+		SigningKey:   SESSIONKEY,
+		SessionStore: sessions.NewRedisStore(redis, time.Hour),
+		UserStore:    userStore,
+		TaskStore:    taskStore,
 	}
 
 	// Create handlers
-	r := mux.NewRouter()
-	r.HandleFunc("/helloworld", ctx.TodoList)
+	r := handlers.NewSessionMux(ctx)
+	r.HandleSessionFunc("/helloworld", ctx.TodoList)
 
 	// Wrap with cors
 	wrappedMux := &handlers.Cors{Handler: r}

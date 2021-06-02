@@ -34,8 +34,14 @@ func (ms *MySQLStore) GetByUserID(userID int64) ([]*Task, error) {
 	for rows.Next() {
 		description := sql.NullString{}
 		task := &Task{}
-		if err := rows.Scan(&task.ID, &task.Name, &description, &task.IsComplete,
-			&task.IsHidden, &task.CreatedAt, &task.EditedAt); err != nil {
+		if err := rows.Scan(
+			&task.ID,
+			&task.Name,
+			&description,
+			&task.IsComplete,
+			&task.IsHidden,
+			&task.CreatedAt,
+			&task.EditedAt); err != nil {
 			return nil, err
 		}
 		task.Description = description.String
@@ -58,8 +64,13 @@ func (ms *MySQLStore) GetByUserID(userID int64) ([]*Task, error) {
 // a newly-inserted Task, complete with the DBMS-assigned ID
 func (ms *MySQLStore) Insert(task *Task) (*Task, error) {
 	query := "INSERT IGNORE INTO TodoList (UserID, Name, Description, IsComplete, IsHidden) VALUES (?, ?, ?, ?, ?)"
-	response, err := ms.Client.Exec(query,
-		task.User.ID, task.Name, task.Description, task.IsComplete, task.IsHidden)
+	response, err := ms.Client.Exec(
+		query,
+		task.User.ID,
+		task.Name,
+		task.Description,
+		task.IsComplete,
+		task.IsHidden)
 	if err != nil {
 		return nil, err
 	}
@@ -92,8 +103,13 @@ func (ms *MySQLStore) Update(id int64, updates *Updates) (*Task, error) {
 	}
 
 	query := "UPDATE TodoList SET Name = ?, Description = ?, IsComplete = ?, IsHidden = ? WHERE ID = ?"
-	if _, err := ms.Client.Exec(query,
-		task.Name, task.Description, task.IsComplete, task.IsHidden, task.ID); err != nil {
+	if _, err := ms.Client.Exec(
+		query,
+		task.Name,
+		task.Description,
+		task.IsComplete,
+		task.IsHidden,
+		task.ID); err != nil {
 		return nil, err
 	}
 	return task, nil
@@ -115,8 +131,15 @@ func (ms *MySQLStore) selectTaskWhere(property string, value interface{}) (*Task
 	row := ms.Client.QueryRow(query, value)
 
 	task := &Task{}
-	if err := row.Scan(&task.ID, &userID, &task.Name, &description,
-		&task.IsComplete, &task.IsHidden, &task.CreatedAt, &task.EditedAt); err != nil {
+	if err := row.Scan(
+		&task.ID,
+		&userID,
+		&task.Name,
+		&description,
+		&task.IsComplete,
+		&task.IsHidden,
+		&task.CreatedAt,
+		&task.EditedAt); err != nil {
 		return nil, ErrTaskNotFound
 	}
 	task.Description = description.String
