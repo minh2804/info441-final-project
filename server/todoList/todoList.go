@@ -3,6 +3,7 @@ package server
 import (
 	"database/sql"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"path"
 
@@ -12,11 +13,14 @@ import (
 )
 
 type TaskItem struct {
-	ID       int64     `json:"id"`
-	UserID   int64     `json:"userId"`
-	TaskName string    `json:"taskName"`
-	TaskType string    `json:"taskType"`
-	InitTime time.Time `json:"initTime"`
+	ID          int64     `json:"id"`
+	UserID      int64     `json:"userId"`
+	TaskName    string    `json:"taskName"`
+	Description string    `json:"description"`
+	IsComplete  bool      `json:"IsComplete"`
+	IsHidden    bool      `json:"IsHidden"`
+	CreatedAt   time.Time `json:"CreatedAt"`
+	EditedAt    time.Time `json:"EditedAt"`
 }
 
 type MysqlStore struct {
@@ -34,9 +38,9 @@ func (sql *MysqlStore) TaskPostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		insq := "INSERT INTO Tasks (UserId, TaskName, TaskType, InitTime) VALUES (?, ?, ?, ?)"
-		res, err := sql.DB.Exec(insq, task.UserID, task.TaskName,
-			task.TaskType, time.Now())
+		insq := "INSERT INTO TodoList (UserID, Name, Description, IsComplete, IsHidden, CreatedAt, EditedAt) VALUES (?, ?, ?, ?, ?, ?, ?)"
+		res, err := sql.DB.Exec(insq, task.UserID, task.TaskName, task.Description, task.IsComplete,
+			task.IsHidden, time.Now(), time.Now())
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			http.Error(w, err.Error(), http.StatusForbidden)
@@ -67,9 +71,9 @@ func (sql *MysqlStore) TaskPatchHandler(w http.ResponseWriter, r *http.Request) 
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		insq := "Update Tasks SET UserId=?, TaskName=?, TaskType=? WHERE TaskId=?"
-		res, err := sql.DB.Exec(insq, task.UserID, task.TaskName,
-			task.TaskType, taskId)
+		insq := "Update TodoList SET UserId=?, Name=?, Description=?, IsComplete=?,EditedAt=? WHERE TaskId=?"
+		res, err := sql.DB.Exec(insq, task.UserID, task.TaskName, task.Description, task.IsComplete,
+			time.Now(), taskId)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			http.Error(w, err.Error(), http.StatusForbidden)
@@ -100,7 +104,7 @@ func (sql *MysqlStore) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		sqlStatement := "select UserId, TaskName, TaskType, InitTime from task where TaskId=?"
+		sqlStatement := "select UserId, Name, Description, IsComplete,IsHidden, CreatedAt, EditedAt from TodoList where TaskId=?"
 		rows, err := sql.DB.Query(sqlStatement, userID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -110,7 +114,8 @@ func (sql *MysqlStore) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 		task := &TaskItem{}
 
 		for rows.Next() {
-			err = rows.Scan(task.UserID, task.TaskName, task.TaskType, task.InitTime)
+			err = rows.Scan(task.UserID, task.TaskName, task.Description, task.IsComplete,
+				task.IsHidden, task.CreatedAt, task.EditedAt)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusUnauthorized)
 				return
@@ -124,6 +129,8 @@ func (sql *MysqlStore) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write(encodedTask)
 		w.Header().Set("Content-Type", "application/json")
+		file, _ := json.MarshalIndent(task, "", " ")
+		_ = ioutil.WriteFile("todoList.json", file, 0644)
 	}
 }
 
@@ -139,7 +146,7 @@ func (sql *MysqlStore) DeleteTaskHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		sqlStatement := "DELETE FROM task WHERE TaskId = ?;"
+		sqlStatement := "DELETE FROM task WHERE TodoList = ?;"
 		_, err = sql.DB.Query(sqlStatement, userID)
 		if err != nil {
 			w.Write([]byte(err.Error()))
