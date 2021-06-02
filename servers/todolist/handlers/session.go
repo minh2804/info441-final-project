@@ -26,7 +26,7 @@ func (sm *SessionMux) HandleSessionFunc(pattern string, handler SessionHandlerFu
 }
 
 // This is an adapter function that will ensure all handlers will have a session created,
-// if a session already existed for the handler, then nothing will happen.
+// if a session already exists for the handler, then nothing will happen.
 // The session state is essential an array of Task (i.e., todo list)
 func (sm *SessionMux) ensureSession(handlerFunc SessionHandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
