@@ -21,7 +21,7 @@ const ContentTypeJSON = "application/json"
 const AdminUserID = 1
 
 // Example todo list, the data is hard coded
-func (ctx *HandlerContext) TodoList(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, sessionState *sessions.SessionState) {
+func (ctx *HandlerContext) TodoList(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Object todoList is an array of object Task
 	todoList, err := ctx.TaskStore.GetByUserID(AdminUserID)
 	if err != nil {
@@ -29,8 +29,8 @@ func (ctx *HandlerContext) TodoList(w http.ResponseWriter, r *http.Request, sess
 		return
 	}
 
-	sessionState.TodoList = todoList
+	currentSession.TodoList = todoList
 
 	w.Header().Add(ContentTypeHeader, ContentTypeJSON)
-	json.NewEncoder(w).Encode(sessionState.TodoList)
+	json.NewEncoder(w).Encode(currentSession.TodoList)
 }
