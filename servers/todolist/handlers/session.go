@@ -21,8 +21,8 @@ func NewSessionMux(ctx *HandlerContext) *SessionMux {
 }
 
 // Newly defined HandlerFunc that simulates that of http.HandleFunc
-func (sm *SessionMux) HandleSessionFunc(pattern string, handler SessionHandlerFunc) {
-	sm.HandleFunc(pattern, sm.ensureSession(handler))
+func (sm *SessionMux) HandleSessionFunc(pattern string, handlerFunc SessionHandlerFunc) {
+	sm.HandleFunc(pattern, sm.ensureSession(handlerFunc))
 }
 
 // This is an adapter function that will ensure all handlers will have a session created,
@@ -34,7 +34,7 @@ func (sm *SessionMux) ensureSession(handlerFunc SessionHandlerFunc) http.Handler
 		_, err := sessions.GetState(r, sm.ctx.SigningKey, sm.ctx.SessionStore, sessionState)
 		if err != nil {
 			if err == sessions.ErrNoSessionID {
-				// Create a new session with empty todo list for the session state
+				// Create a new session with an empty todo list for the session state
 				sessionState = sessions.NewTemporarySessionState()
 				if _, err := sessions.BeginSession(
 					sm.ctx.SigningKey,
@@ -42,8 +42,9 @@ func (sm *SessionMux) ensureSession(handlerFunc SessionHandlerFunc) http.Handler
 					sessionState,
 					w); err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
 				}
-				// Copy the newly-created session token over to request
+				// Copy the newly-created session token over to the request
 				r.Header.Add(sessions.HeaderAuthorization, w.Header().Get(sessions.HeaderAuthorization))
 			} else {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
