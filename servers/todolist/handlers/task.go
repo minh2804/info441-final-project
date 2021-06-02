@@ -1,4 +1,4 @@
-package server
+package handlers
 
 import (
 	"database/sql"
@@ -22,7 +22,6 @@ type TaskItem struct {
 type MysqlStore struct {
 	DB *sql.DB
 }
-
 
 func (sql *MysqlStore) TaskPostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -86,9 +85,9 @@ func (sql *MysqlStore) TaskPatchHandler(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 		w.Write([]byte("update is successful"))
-  }
+	}
 }
-    
+
 func (sql *MysqlStore) GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
