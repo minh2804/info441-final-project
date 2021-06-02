@@ -1,6 +1,8 @@
-package handlers
+package middlewares
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type Cors struct {
 	Handler http.Handler

@@ -22,8 +22,12 @@ func (ms *MySQLStore) GetByUsername(username string) (*User, error) {
 // a newly-inserted User, complete with the DBMS-assigned ID
 func (ms *MySQLStore) Insert(user *User) (*User, error) {
 	query := "INSERT IGNORE INTO User (Username, PassHash, FirstName, LastName) VALUES (?, ?, ?, ?)"
-	response, err := ms.Client.Exec(query,
-		user.Username, user.PassHash, user.FirstName, user.LastName)
+	response, err := ms.Client.Exec(
+		query,
+		user.Username,
+		user.PassHash,
+		user.FirstName,
+		user.LastName)
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +62,11 @@ func (ms *MySQLStore) Update(id int64, updates *Updates) (*User, error) {
 	}
 
 	query := "UPDATE User SET FirstName = ?, LastName = ? WHERE ID = ?"
-	if _, err := ms.Client.Exec(query,
-		user.FirstName, user.LastName, user.ID); err != nil {
+	if _, err := ms.Client.Exec(
+		query,
+		user.FirstName,
+		user.LastName,
+		user.ID); err != nil {
 		return nil, err
 	}
 	return user, nil
@@ -80,8 +87,12 @@ func (ms *MySQLStore) selectUserWhere(property string, value interface{}) (*User
 	query := "SELECT ID, Username, PassHash, FirstName, LastName FROM User WHERE " + property + " = ?"
 	row := ms.Client.QueryRow(query, value)
 	user := &User{}
-	if err := row.Scan(&user.ID, &user.Username, &user.PassHash,
-		&firstName, &lastName); err != nil {
+	if err := row.Scan(
+		&user.ID,
+		&user.Username,
+		&user.PassHash,
+		&firstName,
+		&lastName); err != nil {
 		return nil, ErrUserNotFound
 	}
 
