@@ -69,10 +69,4 @@ TaskName varchar(255) not null UNIQUE,
 TaskType varchar(255) not null,
 InitTime time not null
 
-Stats
-StatsId int not null auto_increment primary key,
-TaskId int not null,
-CompleteTime time not null,
-Completed boolean not null,
-Duration time not null
 ```
