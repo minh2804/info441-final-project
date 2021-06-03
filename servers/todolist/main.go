@@ -5,6 +5,7 @@ import (
 	"info441-final-project/servers/todolist/handlers"
 	"info441-final-project/servers/todolist/middlewares"
 	"info441-final-project/servers/todolist/models/sessions"
+	"info441-final-project/servers/todolist/models/stats"
 	"info441-final-project/servers/todolist/models/tasks"
 	"info441-final-project/servers/todolist/models/users"
 	"log"
@@ -81,11 +82,13 @@ func main() {
 	// Create context
 	userStore := &users.MySQLStore{Client: mysql}
 	taskStore := &tasks.MySQLStore{Client: mysql, UserStore: userStore}
+	statsStore := &stats.MySQLStore{Client: mysql, UserStore: userStore}
 	ctx := &handlers.HandlerContext{
-		SigningKey:   SESSIONKEY,
-		SessionStore: sessions.NewRedisStore(redis, time.Hour),
 		UserStore:    userStore,
 		TaskStore:    taskStore,
+		StatStore:    statsStore,
+		SigningKey:   SESSIONKEY,
+		SessionStore: sessions.NewRedisStore(redis, time.Hour),
 	}
 
 	// Create handlers
@@ -100,6 +103,9 @@ func main() {
 	r.HandleSessionFunc("/tasks", ctx.TasksHandler)
 	r.HandleSessionFunc("/tasks/{taskID}", ctx.SpecificTaskHandler)
 	r.HandleSessionFunc("/tasks/import/{sessionID}", ctx.ImportTasksHandler)
+
+	r.HandleFunc("/stats", ctx.AllStatsHandler)
+	r.HandleFunc("/stats/", ctx.PeriodicStatsHandler)
 
 	r.HandleSessionFunc("/helloworld", ctx.TodoList)
 

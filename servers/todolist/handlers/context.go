@@ -3,16 +3,18 @@ package handlers
 import (
 	"encoding/json"
 	"info441-final-project/servers/todolist/models/sessions"
+	"info441-final-project/servers/todolist/models/stats"
 	"info441-final-project/servers/todolist/models/tasks"
 	"info441-final-project/servers/todolist/models/users"
 	"net/http"
 )
 
 type HandlerContext struct {
-	SigningKey   string
-	SessionStore sessions.Store
 	UserStore    users.Store
 	TaskStore    tasks.Store
+	StatStore    stats.Store
+	SigningKey   string
+	SessionStore *sessions.RedisStore
 }
 
 const ContentTypeHeader = "Content-Type"
