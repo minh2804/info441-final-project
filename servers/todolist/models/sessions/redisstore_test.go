@@ -2,11 +2,10 @@ package sessions
 
 import (
 	"encoding/json"
+	"os"
 	"reflect"
 	"testing"
 	"time"
-
-	"os"
 
 	"github.com/go-redis/redis"
 )

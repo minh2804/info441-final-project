@@ -24,7 +24,7 @@ func TestSessionGetSessionID(t *testing.T) {
 		{
 			"Valid SessionID and Scheme",
 			"Remember to get the SessionID from the Authorization header (or `auth` query string parameter), validate it, and return it",
-			schemeBearer + string(sid),
+			SchemeBearer + string(sid),
 			false,
 		},
 		{
@@ -42,7 +42,7 @@ func TestSessionGetSessionID(t *testing.T) {
 		{
 			"Invalid SessionID",
 			"Remember to validate the id before returning it",
-			schemeBearer + "invalid",
+			SchemeBearer + "invalid",
 			true,
 		},
 	}
@@ -71,7 +71,7 @@ func TestSessionGetSessionIDFromParam(t *testing.T) {
 		t.Fatalf("error generating SessionID: %v", err)
 	}
 
-	URL := fmt.Sprintf("/?%s=%s%s", paramAuthorization, schemeBearer, string(sid))
+	URL := fmt.Sprintf("/?%s=%s%s", ParamAuthorization, SchemeBearer, string(sid))
 	req, _ := http.NewRequest("GET", URL, nil)
 	sidRet, err := GetSessionID(req, key)
 	if err != nil {

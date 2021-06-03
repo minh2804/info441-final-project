@@ -7,14 +7,14 @@ import (
 	"info441-final-project/servers/todolist/models/tasks"
 	"info441-final-project/servers/todolist/models/users"
 	"net/http"
-	"path"
 	"strconv"
 	"strings"
 
+	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var SuccessSignOut = "signed out"
+const SuccessSignOut = "signed out"
 
 var ErrContentTypeNotJSON = errors.New("content type must be type type 'application/json'")
 var ErrForbiddenAccess = errors.New("you are not allowed to make this change")
@@ -60,16 +60,22 @@ func (ctx *HandlerContext) UsersHandler(w http.ResponseWriter, r *http.Request) 
 		}
 
 		// Begin a session for the newly registered user
-		sessions.BeginSession(
+		if _, err := sessions.BeginSession(
 			ctx.SigningKey,
 			ctx.SessionStore,
 			sessions.NewSessionState(registeredUser, []*tasks.Task{}),
-			w) // If error, user will be assumed to retry
+			w); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		// Response to request
 		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(registeredUser) // If error, user will be assumed to retry
+		if err := json.NewEncoder(w).Encode(registeredUser); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
 	default:
 		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
 	}
@@ -87,16 +93,15 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 
 	// Extract id from path
 	var requestedUserID int64
-	requestedUserIDPattern := path.Base(r.URL.Path)
-	if requestedUserIDPattern == "me" {
+	if mux.Vars(r)["userID"] == "me" {
 		requestedUserID = currentSession.User.ID
 	} else {
-		idAsInt32, err := strconv.Atoi(requestedUserIDPattern)
+		id, err := strconv.ParseInt(mux.Vars(r)["userID"], 10, 64)
 		if err != nil {
 			http.Error(w, ErrInvalidResourcePath.Error(), http.StatusBadRequest)
 			return
 		}
-		requestedUserID = int64(idAsInt32)
+		requestedUserID = id
 	}
 
 	// Handle request
@@ -115,10 +120,13 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 
 		// Response to request
 		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
-		json.NewEncoder(w).Encode(requestedUser) // If error, user will be assumed to retry
+		if err := json.NewEncoder(w).Encode(requestedUser); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
 	case "PATCH":
 		// Validate request
-		if (requestedUserIDPattern != "me") || (requestedUserID != currentSession.User.ID) {
+		if (mux.Vars(r)["userID"] != "me") || (requestedUserID != currentSession.User.ID) {
 			http.Error(w, ErrForbiddenAccess.Error(), http.StatusBadRequest)
 			return
 		}
@@ -143,11 +151,17 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 
 		// Apply updates to session store
 		currentSession.User = updatedUser
-		ctx.SessionStore.Save(sessionID, currentSession) // If error, user will be assumed to retry
+		if err := ctx.SessionStore.Save(sessionID, currentSession); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		// Response to request
 		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
-		json.NewEncoder(w).Encode(updatedUser) // If error, user will be assumed to retry
+		if err := json.NewEncoder(w).Encode(updatedUser); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
 	default:
 		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
 	}
@@ -201,7 +215,10 @@ func (ctx *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Reques
 		// Response to request
 		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(currentUser) // If error, user will be assumed to retry
+		if err := json.NewEncoder(w).Encode(currentUser); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
 	default:
 		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
 	}
@@ -213,7 +230,7 @@ func (ctx *HandlerContext) SpecificSessionHandler(w http.ResponseWriter, r *http
 	switch r.Method {
 	case "DELETE":
 		// Validate request
-		if path.Base(r.URL.Path) != "mine" {
+		if mux.Vars(r)["sessionID"] != "mine" {
 			http.Error(w, ErrInvalidResourcePath.Error(), http.StatusForbidden)
 			return
 		}

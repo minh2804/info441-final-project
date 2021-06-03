@@ -13,9 +13,8 @@ var ErrNoSessionID = errors.New("no session ID found in " + HeaderAuthorization 
 var ErrInvalidScheme = errors.New("authorization scheme not supported")
 
 const HeaderAuthorization = "Authorization"
-
-const paramAuthorization = "auth"
-const schemeBearer = "Bearer "
+const ParamAuthorization = "auth"
+const SchemeBearer = "Bearer "
 
 // BeginSession creates a new SessionID, saves the `sessionState` to the store, adds an
 // Authorization header to the response with the SessionID, and returns the new SessionID
@@ -29,7 +28,7 @@ func BeginSession(signingKey string, store Store, sessionState interface{}, w ht
 		return sid, err
 	}
 
-	authToken := schemeBearer + sid.String()
+	authToken := SchemeBearer + sid.String()
 	w.Header().Add(HeaderAuthorization, authToken)
 
 	return sid, nil
@@ -45,11 +44,11 @@ func GetSessionID(r *http.Request, signingKey string) (SessionID, error) {
 		}
 	}
 
-	if !strings.HasPrefix(authToken, schemeBearer) {
+	if !strings.HasPrefix(authToken, SchemeBearer) {
 		return InvalidSessionID, ErrInvalidScheme
 	}
 
-	sid := strings.TrimPrefix(authToken, schemeBearer)
+	sid := strings.TrimPrefix(authToken, SchemeBearer)
 	return ValidateID(sid, signingKey)
 }
 

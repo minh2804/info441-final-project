@@ -92,10 +92,13 @@ func main() {
 	r := middlewares.NewSessionMux(ctx)
 
 	r.HandleFunc("/users", ctx.UsersHandler)
-	r.HandleSessionFunc("/users/", ctx.SpecificUserHandler)
+	r.HandleSessionFunc("/users/{userID}", ctx.SpecificUserHandler)
 
 	r.HandleFunc("/sessions", ctx.SessionsHandler)
-	r.HandleFunc("/sessions/", ctx.SpecificSessionHandler)
+	r.HandleFunc("/sessions/{sessionID}", ctx.SpecificSessionHandler)
+
+	r.HandleSessionFunc("/tasks", ctx.TasksHandler)
+	r.HandleSessionFunc("/tasks/{taskID}", ctx.SpecificTaskHandler)
 
 	r.HandleSessionFunc("/helloworld", ctx.TodoList)
 

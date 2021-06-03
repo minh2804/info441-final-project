@@ -32,5 +32,8 @@ func (ctx *HandlerContext) TodoList(w http.ResponseWriter, r *http.Request, sess
 	currentSession.TodoList = todoList
 
 	w.Header().Add(ContentTypeHeader, ContentTypeJSON)
-	json.NewEncoder(w).Encode(currentSession.TodoList)
+	if err := json.NewEncoder(w).Encode(currentSession.TodoList); err != nil {
+		http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+		return
+	}
 }
