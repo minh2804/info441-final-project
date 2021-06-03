@@ -59,6 +59,7 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 
 		if currentSession.User != nil { // Create to user/task store
 			// Add the newly created task to store
+			newTask.User = currentSession.User
 			insertedTask, err := ctx.TaskStore.Insert(newTask)
 			if err != nil {
 				if err == tasks.ErrTaskAlreadyExisted {
@@ -71,6 +72,7 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 			newTask = insertedTask
 		} else { // Create to session
 			// Update current session's todo list
+			newTask.ID = int64(len(currentSession.TodoList))
 			currentSession.TodoList = append(currentSession.TodoList, newTask)
 			if err := ctx.SessionStore.Save(sessionID, currentSession); err != nil {
 				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
@@ -90,16 +92,10 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 }
 
 func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
-	// Ensure user is logged in
-	if currentSession.User != nil {
-		http.Error(w, ErrUnauthorized.Error(), http.StatusUnauthorized)
-		return
-	}
-
 	// Extract id from path
 	requestedTaskID, err := strconv.ParseInt(mux.Vars(r)["taskID"], 10, 64)
 	if err != nil {
-		http.Error(w, ErrInvalidResourcePath.Error(), http.StatusBadRequest)
+		http.Error(w, tasks.ErrTaskNotFound.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -115,6 +111,12 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 				} else {
 					http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 				}
+				return
+			}
+
+			// Only the onwer of the task can view hidden task
+			if requestedTask.IsHidden && (requestedTask.User.ID != currentSession.User.ID) {
+				http.Error(w, ErrUnauthorized.Error(), http.StatusUnauthorized)
 				return
 			}
 		} else { // Get task from session
@@ -150,12 +152,6 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 			updatedTask, err = ctx.TaskStore.Update(requestedTaskID, requestedUpdates)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-
-			// Update current session's todo list
-			if currentSession.TodoList, err = ctx.TaskStore.GetByUserID(currentSession.User.ID); err != nil {
-				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 				return
 			}
 
@@ -212,41 +208,63 @@ func (ctx *HandlerContext) ImportTasksHandler(w http.ResponseWriter, r *http.Req
 	switch r.Method {
 	case http.MethodGet:
 		// Extract id from path
-		r.Header.Set(sessions.HeaderAuthorization, sessions.SchemeBearer+mux.Vars(r)["sessionID"])
-		requestedSession := &sessions.SessionState{}
-		_, err := sessions.GetState(r, ctx.SigningKey, ctx.SessionStore, requestedSession)
+		requestedUserID, err := strconv.ParseInt(mux.Vars(r)["userID"], 10, 64)
 		if err != nil {
-			if err == sessions.ErrStateNotFound {
-				http.Error(w, ErrTodoListNotFound.Error(), http.StatusNotFound)
+			http.Error(w, users.ErrUserNotFound.Error(), http.StatusNotFound)
+			return
+		}
+
+		// Get the todo list to import
+		requestedTodoList, err := ctx.TaskStore.GetByUserID(requestedUserID)
+		if err != nil {
+			if err == tasks.ErrTaskNotFound {
+				http.Error(w, err.Error(), http.StatusNotFound)
+				return
 			} else {
 				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+				return
 			}
 		}
 
-		var requestedTodoList []*tasks.Task
-		if requestedSession.User != nil { // Get from user/task store
-			requestedTodoList, err = ctx.TaskStore.GetByUserID(requestedSession.User.ID)
-			if err == users.ErrUserNotFound {
-				http.Error(w, ErrTodoListNotFound.Error(), http.StatusNotFound)
-			} else {
+		if currentSession.User != nil { // Get from user/task store
+			// Append the new list to current list
+			for _, task := range requestedTodoList {
+				if !task.IsHidden {
+					task.User = currentSession.User
+					if _, err := ctx.TaskStore.Insert(task); err != nil {
+						http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+						return
+					}
+				}
+			}
+
+			updatedTodoList, err := ctx.TaskStore.GetByUserID(currentSession.User.ID)
+			if err != nil {
 				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// Response to request
+			w.Header().Add(ContentTypeHeader, ContentTypeJSON)
+			if err := json.NewEncoder(w).Encode(updatedTodoList); err != nil {
+				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+				return
 			}
 		} else { // Get from session
-			requestedTodoList = requestedSession.TodoList
-		}
+			// Append the new list to current list
+			for _, task := range requestedTodoList {
+				if !task.IsHidden {
+					task.ID = int64(len(currentSession.TodoList))
+					currentSession.TodoList = append(currentSession.TodoList, task)
+				}
+			}
 
-		// Update requested todo list to current session
-		currentSession.TodoList = append(currentSession.TodoList, requestedTodoList...)
-		if err := ctx.SessionStore.Save(sessionID, currentSession); err != nil {
-			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Response to request
-		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
-		if err := json.NewEncoder(w).Encode(currentSession.TodoList); err != nil {
-			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
-			return
+			// Response to request
+			w.Header().Add(ContentTypeHeader, ContentTypeJSON)
+			if err := json.NewEncoder(w).Encode(currentSession.TodoList); err != nil {
+				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
 	default:
 		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)

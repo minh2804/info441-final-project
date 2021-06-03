@@ -17,9 +17,6 @@ type Store interface {
 	// GetByID returns the Task with the given id
 	GetByID(id int64) (*Task, error)
 
-	// GetByName returns the Task with the given name
-	GetByName(name string) (*Task, error)
-
 	// GetByUserID returns a user's todo list as an array of tasks
 	GetByUserID(userID int64) ([]*Task, error)
 

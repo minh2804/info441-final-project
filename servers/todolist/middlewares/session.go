@@ -35,7 +35,7 @@ func (sm *SessionMux) ensureSession(handlerFunc SessionHandlerFunc) http.Handler
 		currentSession := &sessions.SessionState{}
 		sessionID, err := sessions.GetState(r, sm.ctx.SigningKey, sm.ctx.SessionStore, currentSession)
 		if err != nil {
-			if err == sessions.ErrNoSessionID {
+			if err == sessions.ErrNoSessionID || err == sessions.ErrStateNotFound {
 				// Create a new session with an empty todo list for the session state
 				currentSession = sessions.NewTemporarySessionState()
 				if sessionID, err = sessions.BeginSession(

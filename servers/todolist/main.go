@@ -98,7 +98,7 @@ func main() {
 
 	r.HandleSessionFunc("/tasks", ctx.TasksHandler)
 	r.HandleSessionFunc("/tasks/{taskID}", ctx.SpecificTaskHandler)
-	r.HandleSessionFunc("/tasks/import/{sessionID}", ctx.ImportTasksHandler)
+	r.HandleSessionFunc("/tasks/import/{userID}", ctx.ImportTasksHandler)
 
 	r.HandleSessionFunc("/stats", ctx.AllStatsHandler)
 	r.HandleSessionFunc("/stats/", ctx.PeriodicStatsHandler)

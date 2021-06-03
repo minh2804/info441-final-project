@@ -15,11 +15,6 @@ func (ms *MySQLStore) GetByID(id int64) (*Task, error) {
 	return ms.selectTaskWhere("ID", id)
 }
 
-// GetByName returns the Task with the given name
-func (ms *MySQLStore) GetByName(name string) (*Task, error) {
-	return ms.selectTaskWhere("Name", name)
-}
-
 // GetByUserID returns a user's todo list as an array of tasks
 func (ms *MySQLStore) GetByUserID(userID int64) ([]*Task, error) {
 	query := "SELECT ID, Name, Description, IsComplete, IsHidden, CreatedAt, EditedAt FROM TodoList WHERE UserID = ?"
