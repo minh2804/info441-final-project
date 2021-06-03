@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"info441-final-project/servers/todolist/models/sessions"
 	"info441-final-project/servers/todolist/models/stats"
+	"info441-final-project/servers/todolist/models/tasks"
 	"net/http"
 	"strings"
 )
@@ -71,9 +72,9 @@ func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		createdTasks := []*stats.Task{}
+		createdTasks := []*tasks.Task{}
 
-		completedTasks := []*stats.Task{}
+		completedTasks := []*tasks.Task{}
 
 		if requestedPeriod == "year" {
 			createdTasks, _ = h.StatStore.GetAllWithinYear(user)
@@ -81,7 +82,6 @@ func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Req
 
 		if requestedPeriod == "month" {
 			createdTasks, _ = h.StatStore.GetAllWithinMonth(user)
-
 		}
 
 		if requestedPeriod == "week" {
@@ -117,7 +117,6 @@ func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Req
 			http.Error(w, errMsg, http.StatusInternalServerError)
 			return
 		}
-
 	} else {
 		http.Error(w, "Only Get Allowed", http.StatusMethodNotAllowed)
 		return
