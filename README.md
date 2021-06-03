@@ -25,7 +25,7 @@ P1: The email recipient can click on the ```/tasks/import/<user id>``` and it wi
 
 P2: If the user is not logged in, we will store all of his/her data inside a user session. This user session will be hosted using a ***Redis Database*** and will persist until the user clears their local storage.
 
-P3: The user can import the data from another account, through our ***SQL database***. Tasks will also be held in our ***SQL database*** and then populated on the front end using ***React***. Import can be done by requesting ‘/tasks/import/<userid>’.
+P3: The user can import the data from another account, through our ***SQL database***. Tasks will also be held in our ***SQL database*** and then populated on the front end using ***React***. Import can be done by requesting ```/tasks/import/<userid>```.
 
 Stats: The stats will be pulled from the ***SQL database*** and then transferred onto the front end using ***React***
 
