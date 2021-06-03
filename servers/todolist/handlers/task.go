@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"info441-final-project/servers/todolist/models/sessions"
 	"info441-final-project/servers/todolist/models/tasks"
 	"net/http"
@@ -12,6 +13,35 @@ import (
 )
 
 const SuccessDelete = "Delete is successful"
+
+var ErrShareNotFound = errors.New("share not found")
+
+func (ctx *HandlerContext) TasksShareHandler(w http.ResponseWriter, r *http.Request) {
+	// Handle request
+	switch r.Method {
+	case "GET":
+		// Extract id from path
+		r.Header.Set(sessions.HeaderAuthorization, sessions.SchemeBearer+mux.Vars(r)["sessionID"])
+		requestedSession := &sessions.SessionState{}
+		_, err := sessions.GetState(r, ctx.SigningKey, ctx.SessionStore, requestedSession)
+		if err != nil {
+			if err == sessions.ErrStateNotFound {
+				http.Error(w, ErrShareNotFound.Error(), http.StatusNotFound)
+			} else {
+				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			}
+		}
+
+		// Response to request
+		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
+		if err := json.NewEncoder(w).Encode(requestedSession.TodoList); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
+	default:
+		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
+	}
+}
 
 func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Handle request

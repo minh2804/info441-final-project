@@ -97,6 +97,7 @@ func main() {
 	r.HandleFunc("/sessions", ctx.SessionsHandler)
 	r.HandleFunc("/sessions/{sessionID}", ctx.SpecificSessionHandler)
 
+	r.HandleFunc("/tasks/share/{sessionID}", ctx.TasksShareHandler)
 	r.HandleSessionFunc("/tasks", ctx.TasksHandler)
 	r.HandleSessionFunc("/tasks/{taskID}", ctx.SpecificTaskHandler)
 
