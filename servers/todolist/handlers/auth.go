@@ -77,8 +77,7 @@ func (ctx *HandlerContext) UsersHandler(w http.ResponseWriter, r *http.Request) 
 
 // SpecificUserHandler handles the following:
 // GET - Get the current user
-// PATCH - Updates the current user
-// PATCH - Updates the current user
+// PATCH - Update the current user
 func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Ensure user is logged in
 	if currentSession.User == nil {
@@ -209,7 +208,7 @@ func (ctx *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Reques
 }
 
 // SpecificSessionHandler handles the following:
-// DELETE - Sign out
+// DELETE - Sign out user
 func (ctx *HandlerContext) SpecificSessionHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "DELETE":
