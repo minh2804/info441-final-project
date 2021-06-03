@@ -104,8 +104,8 @@ func main() {
 	r.HandleSessionFunc("/tasks/{taskID}", ctx.SpecificTaskHandler)
 	r.HandleSessionFunc("/tasks/import/{sessionID}", ctx.ImportTasksHandler)
 
-	r.HandleFunc("/stats", ctx.AllStatsHandler)
-	r.HandleFunc("/stats/", ctx.PeriodicStatsHandler)
+	r.HandleSessionFunc("/stats", ctx.AllStatsHandler)
+	r.HandleSessionFunc("/stats/", ctx.PeriodicStatsHandler)
 
 	r.HandleSessionFunc("/helloworld", ctx.TodoList)
 
