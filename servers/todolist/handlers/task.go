@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -72,6 +73,9 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 		} else { // Create to session
 			// Update current session's todo list
 			newTask.ID = int64(len(currentSession.TodoList))
+			newTask.User = nil
+			newTask.CreatedAt = time.Now()
+			newTask.EditedAt = time.Now()
 			currentSession.TodoList = append(currentSession.TodoList, newTask)
 			if err := ctx.SessionStore.Save(sessionID, currentSession); err != nil {
 				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
@@ -168,6 +172,7 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 				http.Error(w, err.Error(), http.StatusNotFound)
 				return
 			}
+			updatedTask.EditedAt = time.Now()
 
 			if err := updatedTask.ApplyUpdates(requestedUpdates); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
@@ -264,6 +269,8 @@ func (ctx *HandlerContext) ImportTasksHandler(w http.ResponseWriter, r *http.Req
 			for _, task := range requestedTodoList {
 				if !task.IsHidden {
 					task.ID = int64(len(currentSession.TodoList))
+					task.User = nil
+					task.EditedAt = time.Now()
 					currentSession.TodoList = append(currentSession.TodoList, task)
 				}
 			}
