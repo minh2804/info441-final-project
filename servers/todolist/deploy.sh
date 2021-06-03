@@ -18,8 +18,8 @@ ssh tom@18.117.102.235 << EOF
 		--network api \
 		-p 443:443 \
 		-v /etc/letsencrypt:/etc/letsencrypt:ro \
-		-e TLSCERT=/etc/letsencrypt/live/api.veryoriginaldomain.me/fullchain.pem \
-		-e TLSKEY=/etc/letsencrypt/live/api.veryoriginaldomain.me/privkey.pem \
+		-e TLSCERT=/etc/letsencrypt/live/api.thenightbeforeitsdue.de/fullchain.pem \
+		-e TLSKEY=/etc/letsencrypt/live/api.thenightbeforeitsdue.de/privkey.pem \
 		-e SESSIONKEY=qwerty123 \
 		-e REDISADDR=rd:6379 \
 		-e DSN="root:@tcp(db:3306)/store?parseTime=true" \
