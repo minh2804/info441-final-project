@@ -10,22 +10,22 @@ As developers, we want to develop an application that serves our target audience
 
 ![technical diagram](media/diagram.png)
 
-| Priority | User                    | Description                                                                                         |
-| -------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
-| P0       | As a logged in user      | I want to create a shareable link, to share it with other people.                                   |
-| P1       | As a recipient   | I want to use the shared link and add the tasks to my task list.          |
-| P2       | As a non-logged in user | I want to create a bunch of reminders and have it persist.                                            |
+| Priority | User                    | Description                                                                    |
+| -------- | ----------------------- | ------------------------------------------------------------------------------ |
+| P0       | As a logged in user     | I want to create a shareable link, to share it with other people.              |
+| P1       | As a recipient          | I want to use the shared link and add the tasks to my todo list.               |
+| P2       | As a non-logged in user | I want to create a bunch of reminders and have it persist.                     |
 | P3       | As a logged in user     | I want to be able to view my stats (items completed all time, completion rate) |
 
 ## Implementation Strategy
 
-P0: The sender can create a shareable link. The shareable link will have the following resource path: ```/tasks/import/<user id>```. We will store the link’s user id in our ***MySQL***.
+P0: The sender can create a shareable link. The shareable link will have the following resource path: ```/tasks/import/{userID}```. We will store the link’s user id in our ***MySQL***.
 
-P1: The email recipient can click on the ```/tasks/import/<user id>``` and it will add to their reminder list.
+P1: The recipient can click on the ```/tasks/import/{userID}``` link and it will add to their todo list.
 
-P2: If the user is not logged in, we will store all of his/her data inside a user session. This user session will be hosted using a ***Redis Database*** and will persist until the user clears their local storage.
+P2: If the user is not logged in, we will store all of the user's data inside the current session. This session will be hosted using a ***Redis Database*** and will persist until the user clears their local storage or log into their account.
 
-P3: The user can import the data from another account, through our ***SQL database***. Tasks will also be held in our ***SQL database*** and then populated on the front end using ***React***. Import can be done by requesting ‘/tasks/import/<userid>’.
+P3: The user can import the data from another account, through our ***SQL database***. If a task is marked as hidden by the owner, then it won't show up when the other user import it. Tasks will also be held in our ***SQL database*** and then populated on the front end using ***React***. Import can be done by requesting ```/tasks/import/{userID}```.
 
 Stats: The stats will be pulled from the ***SQL database*** and then transferred onto the front end using ***React***
 
