@@ -126,7 +126,7 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 	case http.MethodPatch:
 		// Validate request
 		if (mux.Vars(r)["userID"] != "me") || (requestedUserID != currentSession.User.ID) {
-			http.Error(w, ErrForbiddenAccess.Error(), http.StatusBadRequest)
+			http.Error(w, ErrForbiddenAccess.Error(), http.StatusForbidden)
 			return
 		}
 		if !strings.HasPrefix(r.Header.Get(ContentTypeHeader), ContentTypeJSON) {

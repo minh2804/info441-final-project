@@ -38,7 +38,6 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 		}
 		// Response to request
 		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
-		w.WriteHeader(http.StatusCreated)
 		if err := json.NewEncoder(w).Encode(todoList); err != nil {
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
@@ -151,7 +150,11 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 			// Apply updates store
 			updatedTask, err = ctx.TaskStore.Update(requestedTaskID, requestedUpdates)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				if err == tasks.ErrTaskNotFound {
+					http.Error(w, err.Error(), http.StatusNotFound)
+				} else {
+					http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+				}
 				return
 			}
 
@@ -189,6 +192,12 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 				return
 			}
 		} else { // Delete task from session
+			_, err := searchTask(requestedTaskID, currentSession.TodoList)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusNotFound)
+				return
+			}
+
 			// Update current session's todo list
 			currentSession.TodoList = filterTodoList(requestedTaskID, currentSession.TodoList)
 			if err := ctx.SessionStore.Save(sessionID, currentSession); err != nil {
