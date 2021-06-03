@@ -1,6 +1,11 @@
 import React from "react";
 
-function Home() {
+function Stats() {
+	return (
+		<div>
+			Hello from stats
+		</div>
+	);
 }
 
-export default Home;
+export default Stats;

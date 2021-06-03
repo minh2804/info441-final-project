@@ -1,6 +1,11 @@
 import React from "react";
 
-function Home() {
+function SignIn() {
+	return (
+		<div>
+			Hello from SignIn
+		</div>
+	);
 }
 
-export default Home;
+export default SignIn;
