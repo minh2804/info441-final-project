@@ -43,7 +43,7 @@ Stats: The stats will be pulled from the ***SQL database*** and then transferred
 * ```/stats```: refers to all stats of the current user
   * ```GET```: Response with a JSON object of the current user's stats. If the user not logged in, then it will response with status code ```401```.
 * ```/stats/{property}?start={startDate}&end={endDate}```: refers to specific properties of a stat of the current user
-  * ```GET```: Reponse with a JSON object of the requested stats property. ```property``` can be ```year```, ```month```, ```week```, and ```custom```. Only ```custom``` property accepts ```start``` and ```end``` query arguments. If the user it not logged in, then it will response with status code ```401```.
+  * ```GET```: Reponse with a JSON object of the requested stats property. If the user it not logged in, then it will response with status code ```401```. ```property``` can be ```year```, ```month```, ```week```, and ```custom```. Only ```custom``` property accepts ```start``` and ```end``` query arguments.
 * ```/users```: refers to all users
   * ```POST```: Create a new user, then response with a JSON object of the newly-created user and status code ```201```. If the user already existed or an invalid user is provided, then it will response with status code ```400```.
 * ```/users/{userID}```: refers to a specific user
