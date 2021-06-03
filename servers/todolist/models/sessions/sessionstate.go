@@ -13,11 +13,10 @@ type SessionState struct {
 }
 
 // NewSessionState returns a session state including the authenticated user and user's todo list
-func NewSessionState(user *users.User, todoList []*tasks.Task) *SessionState {
+func NewSessionState(user *users.User) *SessionState {
 	return &SessionState{
-		Time:     time.Now(),
-		User:     user,
-		TodoList: todoList,
+		Time: time.Now(),
+		User: user,
 	}
 }
 

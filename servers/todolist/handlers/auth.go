@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"info441-final-project/servers/todolist/models/sessions"
-	"info441-final-project/servers/todolist/models/tasks"
 	"info441-final-project/servers/todolist/models/users"
 	"net/http"
 	"strconv"
@@ -63,7 +62,7 @@ func (ctx *HandlerContext) UsersHandler(w http.ResponseWriter, r *http.Request) 
 		if _, err := sessions.BeginSession(
 			ctx.SigningKey,
 			ctx.SessionStore,
-			sessions.NewSessionState(registeredUser, []*tasks.Task{}),
+			sessions.NewSessionState(registeredUser),
 			w); err != nil {
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
@@ -199,15 +198,8 @@ func (ctx *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Reques
 			return
 		}
 
-		// Retrieve the user's todo list
-		todoList, err := ctx.TaskStore.GetByUserID(currentUser.ID)
-		if err != nil {
-			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
-			return
-		}
-
 		// Begin a session for the logged in user
-		if _, err := sessions.BeginSession(ctx.SigningKey, ctx.SessionStore, sessions.NewSessionState(currentUser, todoList), w); err != nil {
+		if _, err := sessions.BeginSession(ctx.SigningKey, ctx.SessionStore, sessions.NewSessionState(currentUser), w); err != nil {
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
