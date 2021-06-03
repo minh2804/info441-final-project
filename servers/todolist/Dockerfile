@@ -1,6 +1,5 @@
 FROM alpine
 RUN apk add --no-cache ca-certificates
 COPY todolist /todolist
-EXPOSE 80
 EXPOSE 443
 ENTRYPOINT [ "/todolist" ]
