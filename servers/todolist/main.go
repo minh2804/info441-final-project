@@ -103,8 +103,6 @@ func main() {
 	r.HandleSessionFunc("/stats", ctx.AllStatsHandler)
 	r.HandleSessionFunc("/stats/", ctx.PeriodicStatsHandler)
 
-	r.HandleSessionFunc("/helloworld", ctx.TodoList)
-
 	// Wrap with cors
 	wrappedMux := &middlewares.Cors{Handler: r}
 

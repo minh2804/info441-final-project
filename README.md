@@ -40,6 +40,10 @@ Stats: The stats will be pulled from the ***SQL database*** and then transferred
   * ```DELETE```: Delete an existing task, then response with status code ```200```. If the task is not found, then it will response with status code ```404```.
 * ```/tasks/import/{userID}```: refers to importing another user's todo list
   * ```GET```: Reponse with a JSON array of the requested user's todo list and status code ```200```. If the user is not found, then it will response with status code ```404```. If the user is logged in, then the requested user's todo list will be added to the current user's todo list on the database. If the user is not logged in, then the requested user's todo list will be added to the current user's todo list on the current session. Any tasks that is marked as hidden from the requested user's todo list will not be added to the current user's todo list.
+* ```/stats```: refers to all stats of the current user
+  * ```GET```: Response with a JSON object of the current user's stats. If the user not logged in, then it will response with status code ```401```.
+* ```/stats/{property}?start={startDate}&end={endDate}```: refers to specific properties of a stat of the current user
+  * ```GET```: Reponse with a JSON object of the requested stats property. If the user it not logged in, then it will response with status code ```401```. ```property``` can be ```year```, ```month```, ```week```, and ```custom```. Only ```custom``` property accepts ```start``` and ```end``` query arguments.
 * ```/users```: refers to all users
   * ```POST```: Create a new user, then response with a JSON object of the newly-created user and status code ```201```. If the user already existed or an invalid user is provided, then it will response with status code ```400```.
 * ```/users/{userID}```: refers to a specific user
@@ -53,20 +57,37 @@ Stats: The stats will be pulled from the ***SQL database*** and then transferred
 ## Appendix
 
 ```
-User
-UserId int not null auto_increment primary key,
-Username varchar(255) not null UNIQUE,
-FirstName varchar(128) not null,
-LastName varchar(128) not null,
-PassHash varbinary(1024) not null,
-Email varchar(255) not null UNIQUE,
-Phone varchar(255) not null UNIQUE
+CREATE TABLE IF NOT EXISTS User (
+	ID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	Username  VARCHAR(255) NOT NULL UNIQUE,
+	PassHash  CHAR(72) NOT NULL,
+	FirstName VARCHAR(255),
+	LastName  VARCHAR(255)
+);
 
-Task
-TaskId int not null auto_increment primary key,
-UserId int not null,
-TaskName varchar(255) not null UNIQUE,
-TaskType varchar(255) not null,
-InitTime time not null
+CREATE TABLE IF NOT EXISTS TodoList (
+	ID BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	UserID BIGINT NOT NULL,
+	Name VARCHAR(255) NOT NULL,
+	Description VARCHAR(1000),
+	IsComplete BOOL NOT NULL,
+	IsHidden BOOL NOT NULL,
+	CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	EditedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+	FOREIGN KEY (UserID) REFERENCES User (ID)
+);
 
+DELIMITER //
+CREATE PROCEDURE DeleteUser (IN p_ID BIGINT)
+BEGIN
+	IF NOT EXISTS (SELECT * FROM User WHERE ID = p_ID) THEN
+		SIGNAL SQLSTATE '45000'
+			SET MESSAGE_TEXT = 'user not found';
+	END IF;
+	START TRANSACTION;
+	DELETE FROM TodoList WHERE UserID = p_ID;
+	DELETE FROM User WHERE ID = p_ID;
+	COMMIT;
+END;//
+DELIMITER ;
 ```
