@@ -33,20 +33,17 @@ func (h *HandlerContext) AllStatsHandler(w http.ResponseWriter, r *http.Request,
 		}
 
 		results := &stats.QueryResults{
-			Completed: &completedTasks,
-			Created:   &createdTasks,
+			Completed: completedTasks,
+			Created:   createdTasks,
 		}
 
 		// respond to the client
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
 		w.WriteHeader(http.StatusCreated)
-		encodeErr := json.NewEncoder(w).Encode(results)
-		if encodeErr != nil {
-			errMsg := fmt.Sprintf("error encoding json: %v\n", encodeErr)
-			http.Error(w, errMsg, http.StatusInternalServerError)
+		if err := json.NewEncoder(w).Encode(results); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
-
 	} else {
 		http.Error(w, "Only Get Allowed", http.StatusMethodNotAllowed)
 		return
@@ -86,17 +83,14 @@ func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Req
 
 		if requestedPeriod == "week" {
 			createdTasks, _ = h.StatStore.GetAllWithinWeek(user)
-
 		}
 
 		if requestedPeriod == "year" {
 			completedTasks, _ = h.StatStore.GetCompletedWithinYear(user)
-
 		}
 
 		if requestedPeriod == "month" {
 			completedTasks, _ = h.StatStore.GetCompletedWithinMonth(user)
-
 		}
 
 		if requestedPeriod == "week" {
@@ -104,17 +98,15 @@ func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Req
 
 		}
 		results := &stats.QueryResults{
-			Completed: &completedTasks,
-			Created:   &createdTasks,
+			Completed: completedTasks,
+			Created:   createdTasks,
 		}
 
 		// respond to the client
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
 		w.WriteHeader(http.StatusCreated)
-		encodeErr := json.NewEncoder(w).Encode(results)
-		if encodeErr != nil {
-			errMsg := fmt.Sprintf("error encoding json: %v\n", encodeErr)
-			http.Error(w, errMsg, http.StatusInternalServerError)
+		if err := json.NewEncoder(w).Encode(results); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
 	} else {
@@ -166,17 +158,15 @@ func SpecificStatsHandler(h *HandlerContext, w http.ResponseWriter, r *http.Requ
 		}
 
 		results := &stats.QueryResults{
-			Completed: &completedTasks,
-			Created:   &createdTasks,
+			Completed: completedTasks,
+			Created:   createdTasks,
 		}
 
 		// respond to the client
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
 		w.WriteHeader(http.StatusCreated)
-		encodeErr := json.NewEncoder(w).Encode(results)
-		if encodeErr != nil {
-			errMsg := fmt.Sprintf("error encoding json: %v\n", encodeErr)
-			http.Error(w, errMsg, http.StatusInternalServerError)
+		if err := json.NewEncoder(w).Encode(results); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
 	} else {
