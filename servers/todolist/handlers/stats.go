@@ -72,7 +72,6 @@ func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Req
 		}
 
 		createdTasks := []*tasks.Task{}
-
 		completedTasks := []*tasks.Task{}
 
 		if requestedPeriod == "year" {
