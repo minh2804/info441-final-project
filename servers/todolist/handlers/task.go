@@ -5,6 +5,7 @@ import (
 	"errors"
 	"info441-final-project/servers/todolist/models/sessions"
 	"info441-final-project/servers/todolist/models/tasks"
+	"info441-final-project/servers/todolist/models/users"
 	"net/http"
 	"strconv"
 	"strings"
@@ -14,41 +15,14 @@ import (
 
 const SuccessDelete = "Delete is successful"
 
-var ErrShareNotFound = errors.New("share not found")
-
-func (ctx *HandlerContext) TasksShareHandler(w http.ResponseWriter, r *http.Request) {
-	// Handle request
-	switch r.Method {
-	case "GET":
-		// Extract id from path
-		r.Header.Set(sessions.HeaderAuthorization, sessions.SchemeBearer+mux.Vars(r)["sessionID"])
-		requestedSession := &sessions.SessionState{}
-		_, err := sessions.GetState(r, ctx.SigningKey, ctx.SessionStore, requestedSession)
-		if err != nil {
-			if err == sessions.ErrStateNotFound {
-				http.Error(w, ErrShareNotFound.Error(), http.StatusNotFound)
-			} else {
-				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
-			}
-		}
-
-		// Response to request
-		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
-		if err := json.NewEncoder(w).Encode(requestedSession.TodoList); err != nil {
-			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
-			return
-		}
-	default:
-		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
-	}
-}
+var ErrTodoListNotFound = errors.New("todo list not found")
 
 func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Handle request
 	switch r.Method {
 	case "GET":
 		var todoList []*tasks.Task
-		if currentSession.User == nil { // Get from store
+		if currentSession.User != nil { // Get from user/task store
 			requestedTodoList, err := ctx.TaskStore.GetByUserID(currentSession.User.ID)
 			if err != nil {
 				if err == tasks.ErrTaskNotFound {
@@ -64,6 +38,7 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 		}
 		// Response to request
 		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
+		w.WriteHeader(http.StatusCreated)
 		if err := json.NewEncoder(w).Encode(todoList); err != nil {
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
@@ -82,7 +57,7 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 			return
 		}
 
-		if currentSession.User == nil { // Create to store
+		if currentSession.User != nil { // Create to user/task store
 			// Add the newly created task to store
 			insertedTask, err := ctx.TaskStore.Insert(newTask)
 			if err != nil {
@@ -116,7 +91,7 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 
 func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Ensure user is logged in
-	if currentSession.User == nil {
+	if currentSession.User != nil {
 		http.Error(w, ErrUnauthorized.Error(), http.StatusUnauthorized)
 		return
 	}
@@ -132,7 +107,7 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 	switch r.Method {
 	case "GET":
 		var requestedTask *tasks.Task
-		if currentSession.User == nil { // Get task from store
+		if currentSession.User != nil { // Get task from user/task store
 			requestedTask, err = ctx.TaskStore.GetByID(requestedTaskID)
 			if err != nil {
 				if err == tasks.ErrTaskNotFound {
@@ -170,8 +145,8 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 		}
 
 		var updatedTask *tasks.Task
-		if currentSession.User == nil { // Update task from store
-			// Apply updates to store
+		if currentSession.User != nil { // Update task from user/task store
+			// Apply updates store
 			updatedTask, err = ctx.TaskStore.Update(requestedTaskID, requestedUpdates)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
@@ -212,7 +187,7 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 			return
 		}
 	case "DELETE":
-		if currentSession.User == nil { // Delete task from store
+		if currentSession.User != nil { // Delete task from user/task store
 			if err := ctx.TaskStore.Delete(requestedTaskID); err != nil {
 				http.Error(w, err.Error(), http.StatusNotFound)
 				return
@@ -227,6 +202,52 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 		}
 		// Response to request
 		w.Write([]byte(SuccessDelete))
+	default:
+		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
+	}
+}
+
+func (ctx *HandlerContext) ImportTasksHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
+	// Handle request
+	switch r.Method {
+	case "GET":
+		// Extract id from path
+		r.Header.Set(sessions.HeaderAuthorization, sessions.SchemeBearer+mux.Vars(r)["sessionID"])
+		requestedSession := &sessions.SessionState{}
+		_, err := sessions.GetState(r, ctx.SigningKey, ctx.SessionStore, requestedSession)
+		if err != nil {
+			if err == sessions.ErrStateNotFound {
+				http.Error(w, ErrTodoListNotFound.Error(), http.StatusNotFound)
+			} else {
+				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			}
+		}
+
+		var requestedTodoList []*tasks.Task
+		if requestedSession.User != nil { // Get from user/task store
+			requestedTodoList, err = ctx.TaskStore.GetByUserID(requestedSession.User.ID)
+			if err == users.ErrUserNotFound {
+				http.Error(w, ErrTodoListNotFound.Error(), http.StatusNotFound)
+			} else {
+				http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			}
+		} else { // Get from session
+			requestedTodoList = requestedSession.TodoList
+		}
+
+		// Update requested todo list to current session
+		currentSession.TodoList = append(currentSession.TodoList, requestedTodoList...)
+		if err := ctx.SessionStore.Save(sessionID, currentSession); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Response to request
+		w.Header().Add(ContentTypeHeader, ContentTypeJSON)
+		if err := json.NewEncoder(w).Encode(currentSession.TodoList); err != nil {
+			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
+			return
+		}
 	default:
 		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
 	}
