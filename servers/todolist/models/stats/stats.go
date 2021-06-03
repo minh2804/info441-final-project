@@ -15,3 +15,8 @@ type Task struct {
 	CreatedAt   time.Time   `json:"createdAt"`
 	EditedAt    time.Time   `json:"editedAt"`
 }
+
+type QueryResults struct {
+	Completed *[]*Task `json: completed`
+	Created   *[]*Task `json: created`
+}

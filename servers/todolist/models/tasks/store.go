@@ -4,7 +4,12 @@ import (
 	"errors"
 )
 
+// ErrTaskAlreadyExisted is returned from Store.Insert() when the given task
+// already existed in the database
 var ErrTaskAlreadyExisted = errors.New("task already existed")
+
+// ErrTaskNotFound is returned when a Store's getter function could not
+// find the requested task
 var ErrTaskNotFound = errors.New("task not found")
 
 // Store represents a store for Tasks
