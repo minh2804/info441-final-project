@@ -12,7 +12,8 @@ import (
 
 // Returns stats (tasks created, tasks done) for the entire lifespan of the account
 func (h *HandlerContext) AllStatsHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		user := currentSession.User.ID
 		if user == 0 {
 			http.Error(w, "no user provided", http.StatusBadRequest)
@@ -44,15 +45,15 @@ func (h *HandlerContext) AllStatsHandler(w http.ResponseWriter, r *http.Request,
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
-	} else {
-		http.Error(w, "Only Get Allowed", http.StatusMethodNotAllowed)
-		return
+	default:
+		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
 	}
 }
 
 // Returns stats (tasks created, tasks done) for a specific length of time (year, month, week, custom)
 func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		requestedPeriod := strings.ToLower(r.URL.Path)
 		if requestedPeriod != "year" && requestedPeriod != "month" && requestedPeriod != "week" && requestedPeriod != "custom" {
 			http.Error(w, fmt.Sprintf("%s is not a reconized period, please input only year, month, custom, or week", requestedPeriod), http.StatusBadRequest)
@@ -109,15 +110,15 @@ func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Req
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
-	} else {
-		http.Error(w, "Only Get Allowed", http.StatusMethodNotAllowed)
-		return
+	default:
+		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
 	}
 }
 
 // Returns stats (tasks created, tasks done) for between two dates (start and stop in query params)
 func SpecificStatsHandler(h *HandlerContext, w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
-	if r.Method == http.MethodGet {
+	switch r.Method {
+	case http.MethodGet:
 		user := currentSession.User.ID
 		if user == 0 {
 			http.Error(w, "no user provided", http.StatusBadRequest)
@@ -169,8 +170,7 @@ func SpecificStatsHandler(h *HandlerContext, w http.ResponseWriter, r *http.Requ
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
-	} else {
-		http.Error(w, "Only Get Allowed", http.StatusMethodNotAllowed)
-		return
+	default:
+		http.Error(w, ErrRequestMethodNotAllowed.Error(), http.StatusMethodNotAllowed)
 	}
 }

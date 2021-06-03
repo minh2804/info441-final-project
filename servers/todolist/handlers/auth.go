@@ -29,7 +29,7 @@ var ErrUnauthorized = errors.New("please sign in")
 // POST - Create a new user
 func (ctx *HandlerContext) UsersHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "POST":
+	case http.MethodPost:
 		// Validate request
 		if !strings.HasPrefix(r.Header.Get(ContentTypeHeader), ContentTypeJSON) {
 			http.Error(w, ErrContentTypeNotJSON.Error(), http.StatusUnsupportedMediaType)
@@ -106,7 +106,7 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 
 	// Handle request
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		// Search for the requested user
 		requestedUser, err := ctx.UserStore.GetByID(requestedUserID)
 		if err != nil {
@@ -124,7 +124,7 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
-	case "PATCH":
+	case http.MethodPatch:
 		// Validate request
 		if (mux.Vars(r)["userID"] != "me") || (requestedUserID != currentSession.User.ID) {
 			http.Error(w, ErrForbiddenAccess.Error(), http.StatusBadRequest)
@@ -171,7 +171,7 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 // POST - Create a new authenticated session given valid credentials
 func (ctx *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "POST":
+	case http.MethodPost:
 		// Validate request
 		if !strings.HasPrefix(r.Header.Get(ContentTypeHeader), ContentTypeJSON) {
 			http.Error(w, ErrContentTypeNotJSON.Error(), http.StatusUnsupportedMediaType)
@@ -228,7 +228,7 @@ func (ctx *HandlerContext) SessionsHandler(w http.ResponseWriter, r *http.Reques
 // DELETE - Sign out user
 func (ctx *HandlerContext) SpecificSessionHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "DELETE":
+	case http.MethodDelete:
 		// Validate request
 		if mux.Vars(r)["sessionID"] != "mine" {
 			http.Error(w, ErrInvalidResourcePath.Error(), http.StatusForbidden)

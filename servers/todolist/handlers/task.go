@@ -20,7 +20,7 @@ var ErrTodoListNotFound = errors.New("todo list not found")
 func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Handle request
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		var todoList []*tasks.Task
 		if currentSession.User != nil { // Get from user/task store
 			requestedTodoList, err := ctx.TaskStore.GetByUserID(currentSession.User.ID)
@@ -43,7 +43,7 @@ func (ctx *HandlerContext) TasksHandler(w http.ResponseWriter, r *http.Request, 
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
-	case "POST":
+	case http.MethodPost:
 		// Validate request
 		if !strings.HasPrefix(r.Header.Get(ContentTypeHeader), ContentTypeJSON) {
 			http.Error(w, ErrContentTypeNotJSON.Error(), http.StatusUnsupportedMediaType)
@@ -105,7 +105,7 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 
 	// Handle request
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		var requestedTask *tasks.Task
 		if currentSession.User != nil { // Get task from user/task store
 			requestedTask, err = ctx.TaskStore.GetByID(requestedTaskID)
@@ -130,7 +130,7 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
-	case "PATCH":
+	case http.MethodPatch:
 		// Validate request
 		if !strings.HasPrefix(r.Header.Get(ContentTypeHeader), ContentTypeJSON) {
 			http.Error(w, ErrContentTypeNotJSON.Error(), http.StatusUnsupportedMediaType)
@@ -186,7 +186,7 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 			http.Error(w, ErrInternal.Error(), http.StatusInternalServerError)
 			return
 		}
-	case "DELETE":
+	case http.MethodDelete:
 		if currentSession.User != nil { // Delete task from user/task store
 			if err := ctx.TaskStore.Delete(requestedTaskID); err != nil {
 				http.Error(w, err.Error(), http.StatusNotFound)
@@ -210,7 +210,7 @@ func (ctx *HandlerContext) SpecificTaskHandler(w http.ResponseWriter, r *http.Re
 func (ctx *HandlerContext) ImportTasksHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Handle request
 	switch r.Method {
-	case "GET":
+	case http.MethodGet:
 		// Extract id from path
 		r.Header.Set(sessions.HeaderAuthorization, sessions.SchemeBearer+mux.Vars(r)["sessionID"])
 		requestedSession := &sessions.SessionState{}

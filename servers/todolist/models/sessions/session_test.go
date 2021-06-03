@@ -49,7 +49,7 @@ func TestSessionGetSessionID(t *testing.T) {
 
 	for _, c := range cases {
 		// test using Authorization header
-		req, _ := http.NewRequest("GET", "/", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Add(HeaderAuthorization, c.header)
 		sidRet, err := GetSessionID(req, key)
 		if err != nil && !c.expectError {
@@ -72,7 +72,7 @@ func TestSessionGetSessionIDFromParam(t *testing.T) {
 	}
 
 	URL := fmt.Sprintf("/?%s=%s%s", ParamAuthorization, SchemeBearer, string(sid))
-	req, _ := http.NewRequest("GET", URL, nil)
+	req, _ := http.NewRequest(http.MethodGet, URL, nil)
 	sidRet, err := GetSessionID(req, key)
 	if err != nil {
 		t.Errorf("error getting SessionID from query string parameter: %v", err)
@@ -94,7 +94,7 @@ func TestSessionCycle(t *testing.T) {
 	// first try getting the session state before a session
 	// has been started to ensure you get an error
 	var state int
-	req, _ := http.NewRequest("GET", "/", nil)
+	req, _ := http.NewRequest(http.MethodGet, "/", nil)
 	_, err := GetState(req, key, store, &state)
 	if err == nil {
 		t.Error("no error returned when getting state before session has started")
@@ -127,7 +127,7 @@ func TestSessionCycle(t *testing.T) {
 	}
 
 	// get session state
-	req, _ = http.NewRequest("GET", "/", nil)
+	req, _ = http.NewRequest(http.MethodGet, "/", nil)
 	req.Header.Add(HeaderAuthorization, token)
 	var state2 int
 	sid2, err := GetState(req, key, store, &state2)
