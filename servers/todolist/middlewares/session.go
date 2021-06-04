@@ -35,7 +35,7 @@ func (sm *SessionMux) ensureSession(handlerFunc SessionHandlerFunc) http.Handler
 		currentSession := &sessions.SessionState{}
 		sessionID, err := sessions.GetState(r, sm.ctx.SigningKey, sm.ctx.SessionStore, currentSession)
 		if err != nil {
-			if err == sessions.ErrNoSessionID || err == sessions.ErrStateNotFound || err == sessions.ErrInvalidScheme {
+			if err == sessions.ErrNoSessionID || err == sessions.ErrStateNotFound {
 				// Create a new session with an empty todo list for the session state
 				currentSession = sessions.NewTemporarySessionState()
 				if sessionID, err = sessions.BeginSession(
@@ -48,8 +48,11 @@ func (sm *SessionMux) ensureSession(handlerFunc SessionHandlerFunc) http.Handler
 				}
 				// Copy the newly-created session token over to the request
 				r.Header.Add(sessions.HeaderAuthorization, w.Header().Get(sessions.HeaderAuthorization))
+			} else if err == sessions.ErrInvalidScheme {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
 			} else {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				http.Error(w, handlers.ErrInternal.Error(), http.StatusInternalServerError)
 				return
 			}
 		}
