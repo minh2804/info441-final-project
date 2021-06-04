@@ -18,3 +18,8 @@ ssh tom@3.136.26.146 << EOF
 
 	exit
 EOF
+
+# docker push xuwensi0515/todolistclient
+# ssh wenxi@3.136.26.146
+# docker pull xuwensi0515/todolistclient
+# docker run -d --name clients -p 80:80 -p 443:443 -v /etc/letsencrypt:/etc/letsencrypt:ro -e TLSCERT=/etc/letsencrypt/live/thenightbeforeitsdue.de/fullchain.pem -e TLSKEY=/etc/letsencrypt/live/thenightbeforeitsdue.de/privkey.pem xuwensi0515/todolistclient
