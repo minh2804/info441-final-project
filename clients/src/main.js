@@ -11,23 +11,18 @@ Vue.use(ElementUI);
 Vue.config.productionTip = false
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 axios.interceptors.request.use(config => {
-	if (window.sessionStorage.getItem("Authorization") != null) {
-		config.headers.contentType = 'application/json';
-		config.headers.authorization = window.sessionStorage.getItem("Authorization")
+	if (window.sessionStorage.getItem("authorization") != null) {
+		config.headers['Content-Type'] = 'application/json';
+		config.headers['Authorization'] = window.sessionStorage.getItem("authorization")
 	}
 	return config;
 })
-
 
 Vue.prototype.$http = axios;
 
 //全局引用axios
 Vue.prototype.$http = axios;
 Vue.prototype.$url = "https://api.thenightbeforeitsdue.de";
-
-
-
-
 
 /* eslint-disable no-new */
 new Vue({

@@ -223,8 +223,8 @@ export default {
           method: "get",
           url: this.$url + "/tasks", //这里是发送给后台的数据
           headers: {
-            "content-type": "application/json",
-            authorization: sessionStorage.getItem("Authorization"),
+            "Content-Type": "application/json",
+            authorization: sessionStorage.getItem("authorization"),
           },
         })
           .then((response) => {
@@ -266,8 +266,8 @@ export default {
             method: "get",
             url: this.$url + "/tasks", //这里是发送给后台的数据
             headers: {
-              "content-type": "application/json",
-              authorization: sessionStorage.getItem("Authorization"),
+              "Content-Type": "application/json",
+              authorization: sessionStorage.getItem("authorization"),
             },
           })
             .then((response) => {
@@ -314,8 +314,8 @@ export default {
       method: "get",
       url: this.$url + "/tasks", //这里是发送给后台的数据
       headers: {
-        "content-type": "application/json",
-        authorization: sessionStorage.getItem("Authorization"),
+        "Content-Type": "application/json",
+        authorization: sessionStorage.getItem("authorization"),
       },
     })
       .then((response) => {

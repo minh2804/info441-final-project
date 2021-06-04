@@ -96,7 +96,7 @@ export default {
             sessionStorage.setItem("username", response.data.username);
             sessionStorage.setItem("firstName", response.data.firstName);
             sessionStorage.setItem("lastName", response.data.lastName);
-            sessionStorage.setItem("Authorization", response.headers.authorization);
+            sessionStorage.setItem("authorization", response.headers["Authorization"]);
             console.log(response)
               this.$router.push("/home");
           });
@@ -105,7 +105,7 @@ export default {
           //   method: "post",
           //   url: this.$url + "/sessions", //这里是发送给后台的数据
           //   headers: {
-          //     "content-type": "application/json",
+          //     "Content-Type": "application/json",
           //   },
           //   data: param,
           // })
