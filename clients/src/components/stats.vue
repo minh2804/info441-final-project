@@ -62,7 +62,7 @@ export default {
       url: this.$url + "/stats", //这里是发送给后台的数据
       headers: {
         "content-type": "application/json",
-        authorization: sessionStorage.getItem("authorization"),
+        authorization: sessionStorage.getItem("Authorization"),
       },
     })
       .then((response) => {

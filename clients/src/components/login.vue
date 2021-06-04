@@ -96,7 +96,7 @@ export default {
             sessionStorage.setItem("username", response.data.username);
             sessionStorage.setItem("firstName", response.data.firstName);
             sessionStorage.setItem("lastName", response.data.lastName);
-            sessionStorage.setItem("authorization",response.headers.authorization);
+            sessionStorage.setItem("Authorization", response.headers.authorization);
             console.log(response)
               this.$router.push("/home");
           });
