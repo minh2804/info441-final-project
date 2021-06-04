@@ -55,10 +55,6 @@ export default {
     if (sessionStorage.getItem("shareurl") != null) {
       this.shareurl = sessionStorage.getItem("shareurl");
     } else {
-      sessionStorage.setItem(
-        "shareurl",
-        "https://api.uwinfotutor.me/tasks/import/7"
-      );
       this.shareurl = sessionStorage.getItem("shareurl");
     }
     this.$http({
