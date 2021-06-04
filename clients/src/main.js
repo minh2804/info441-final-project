@@ -10,14 +10,13 @@ import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 Vue.config.productionTip = false
 axios.defaults.headers.post['Content-Type'] = 'application/json';
-axios.interceptors.request.use(config=>{
-  if(window.sessionStorage.getItem("authorization")!=null){
-    config.headers.contentType='application/json';
-  config.headers.authorization=window.sessionStorage.getItem("authorization")
-  }
-  return config;
+axios.interceptors.request.use(config => {
+	if (window.sessionStorage.getItem("authorization") != null) {
+		config.headers['Content-Type'] = 'application/json';
+		config.headers['Authorization'] = window.sessionStorage.getItem("authorization")
+	}
+	return config;
 })
-
 
 Vue.prototype.$http = axios;
 
@@ -25,14 +24,10 @@ Vue.prototype.$http = axios;
 Vue.prototype.$http = axios;
 Vue.prototype.$url = "https://api.thenightbeforeitsdue.de";
 
-
-
-
-
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
+	el: '#app',
+	router,
+	components: { App },
+	template: '<App/>'
 })
