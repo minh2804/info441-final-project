@@ -84,12 +84,6 @@ func (ctx *HandlerContext) UsersHandler(w http.ResponseWriter, r *http.Request) 
 // GET - Get the current user
 // PATCH - Update the current user
 func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
-	// Ensure user is logged in
-	if currentSession.User == nil {
-		http.Error(w, ErrUnauthorized.Error(), http.StatusUnauthorized)
-		return
-	}
-
 	// Extract id from path
 	var requestedUserID int64
 	if mux.Vars(r)["userID"] == "me" {
@@ -124,6 +118,12 @@ func (ctx *HandlerContext) SpecificUserHandler(w http.ResponseWriter, r *http.Re
 			return
 		}
 	case http.MethodPatch:
+		// Ensure user is logged in
+		if currentSession.User.IsTemporary {
+			http.Error(w, ErrUnauthorized.Error(), http.StatusUnauthorized)
+			return
+		}
+
 		// Validate request
 		if (mux.Vars(r)["userID"] != "me") || (requestedUserID != currentSession.User.ID) {
 			http.Error(w, ErrForbiddenAccess.Error(), http.StatusForbidden)

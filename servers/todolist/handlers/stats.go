@@ -13,7 +13,7 @@ import (
 // Returns stats (tasks created, tasks done) for the entire lifespan of the account
 func (h *HandlerContext) AllStatsHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Ensure user is logged in
-	if currentSession.User == nil {
+	if currentSession.User.IsTemporary {
 		http.Error(w, ErrUnauthorized.Error(), http.StatusUnauthorized)
 		return
 	}
@@ -53,7 +53,7 @@ func (h *HandlerContext) AllStatsHandler(w http.ResponseWriter, r *http.Request,
 // Returns stats (tasks created, tasks done) for a specific length of time (year, month, week, custom)
 func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Ensure user is logged in
-	if currentSession.User == nil {
+	if currentSession.User.IsTemporary {
 		http.Error(w, ErrUnauthorized.Error(), http.StatusUnauthorized)
 		return
 	}
@@ -118,7 +118,7 @@ func (h *HandlerContext) PeriodicStatsHandler(w http.ResponseWriter, r *http.Req
 // Returns stats (tasks created, tasks done) for between two dates (start and stop in query params)
 func SpecificStatsHandler(h *HandlerContext, w http.ResponseWriter, r *http.Request, sessionID sessions.SessionID, currentSession *sessions.SessionState) {
 	// Ensure user is logged in
-	if currentSession.User == nil {
+	if currentSession.User.IsTemporary {
 		http.Error(w, ErrUnauthorized.Error(), http.StatusUnauthorized)
 		return
 	}

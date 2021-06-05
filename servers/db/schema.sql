@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS User (
 	Username  VARCHAR(255) NOT NULL UNIQUE,
 	PassHash  CHAR(72) NOT NULL,
 	FirstName VARCHAR(255),
-	LastName  VARCHAR(255)
+	LastName  VARCHAR(255),
+	IsTemporary BOOL DEFAULT FALSE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS TodoList (
@@ -31,13 +32,3 @@ BEGIN
 	COMMIT;
 END;//
 DELIMITER ;
-
--- Hard coded data
-INSERT IGNORE INTO User (ID, Username, PassHash) VALUES (1, 'admin', 'admin');
-INSERT IGNORE INTO TodoList (ID, UserID, Name, Description, IsComplete, IsHidden)
-VALUES
-	(1, 1, 'First task', 'First desc', TRUE, TRUE),
-	(2, 1, 'Second task', 'Second desc', TRUE, TRUE),
-	(3, 1, 'Third task', 'Third desc', TRUE, TRUE),
-	(4, 1, 'Fourth task', 'Fourth desc', FALSE, FALSE),
-	(5, 1, 'Fifth task', 'Fifth desc', FALSE, TRUE);

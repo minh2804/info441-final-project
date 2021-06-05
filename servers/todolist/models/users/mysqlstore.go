@@ -21,13 +21,14 @@ func (ms *MySQLStore) GetByUsername(username string) (*User, error) {
 // Insert inserts the user into the database, and returns
 // a newly-inserted User, complete with the DBMS-assigned ID
 func (ms *MySQLStore) Insert(user *User) (*User, error) {
-	query := "INSERT IGNORE INTO User (Username, PassHash, FirstName, LastName) VALUES (?, ?, ?, ?)"
+	query := "INSERT IGNORE INTO User (Username, PassHash, FirstName, LastName, IsTemporary) VALUES (?, ?, ?, ?, ?)"
 	response, err := ms.Client.Exec(
 		query,
 		user.Username,
 		user.PassHash,
 		user.FirstName,
-		user.LastName)
+		user.LastName,
+		user.IsTemporary)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (ms *MySQLStore) selectUserWhere(property string, value interface{}) (*User
 	firstName := sql.NullString{}
 	lastName := sql.NullString{}
 
-	query := "SELECT ID, Username, PassHash, FirstName, LastName FROM User WHERE " + property + " = ?"
+	query := "SELECT ID, Username, PassHash, FirstName, LastName, IsTemporary FROM User WHERE " + property + " = ?"
 	row := ms.Client.QueryRow(query, value)
 	user := &User{}
 	if err := row.Scan(
@@ -92,7 +93,8 @@ func (ms *MySQLStore) selectUserWhere(property string, value interface{}) (*User
 		&user.Username,
 		&user.PassHash,
 		&firstName,
-		&lastName); err != nil {
+		&lastName,
+		&user.IsTemporary); err != nil {
 		return nil, ErrUserNotFound
 	}
 

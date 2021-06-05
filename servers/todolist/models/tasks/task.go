@@ -19,18 +19,26 @@ type Task struct {
 
 // Updates represents allowed updates to a task
 type Updates struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	IsComplete  bool   `json:"isComplete"`
-	IsHidden    bool   `json:"isHidden"`
+	Name        *string `json:"name"`
+	Description *string `json:"description"`
+	IsComplete  *bool   `json:"isComplete"`
+	IsHidden    *bool   `json:"isHidden"`
 }
 
 // ApplyUpdates applies the updates to the task. An error
 // is returned if the updates are invalid
 func (t *Task) ApplyUpdates(updates *Updates) error {
-	t.Name = updates.Name
-	t.Description = updates.Description
-	t.IsComplete = updates.IsComplete
-	t.IsHidden = updates.IsHidden
+	if updates.Name != nil {
+		t.Name = *updates.Name
+	}
+	if updates.Description != nil {
+		t.Description = *updates.Description
+	}
+	if updates.IsComplete != nil {
+		t.IsComplete = *updates.IsComplete
+	}
+	if updates.IsHidden != nil {
+		t.IsHidden = *updates.IsHidden
+	}
 	return nil
 }

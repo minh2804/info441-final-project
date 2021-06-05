@@ -88,20 +88,20 @@ func main() {
 	}
 
 	// Create handlers
-	r := middlewares.NewSessionMux(ctx)
+	r := middlewares.NewUserMux(ctx)
 
 	r.HandleFunc("/users", ctx.UsersHandler)
-	r.HandleSessionFunc("/users/{userID}", ctx.SpecificUserHandler)
+	r.HandleUserFunc("/users/{userID}", ctx.SpecificUserHandler)
 
 	r.HandleFunc("/sessions", ctx.SessionsHandler)
 	r.HandleFunc("/sessions/{sessionID}", ctx.SpecificSessionHandler)
 
-	r.HandleSessionFunc("/tasks", ctx.TasksHandler)
-	r.HandleSessionFunc("/tasks/{taskID}", ctx.SpecificTaskHandler)
-	r.HandleSessionFunc("/tasks/import/{userID}", ctx.ImportTasksHandler)
+	r.HandleUserFunc("/tasks", ctx.TasksHandler)
+	r.HandleUserFunc("/tasks/{taskID}", ctx.SpecificTaskHandler)
+	r.HandleUserFunc("/tasks/import/{userID}", ctx.ImportTasksHandler)
 
-	r.HandleSessionFunc("/stats", ctx.AllStatsHandler)
-	r.HandleSessionFunc("/stats/", ctx.PeriodicStatsHandler)
+	r.HandleUserFunc("/stats", ctx.AllStatsHandler)
+	r.HandleUserFunc("/stats/", ctx.PeriodicStatsHandler)
 
 	// Wrap with cors
 	wrappedMux := &middlewares.Cors{Handler: r}

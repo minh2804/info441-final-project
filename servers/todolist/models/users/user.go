@@ -16,11 +16,12 @@ var ErrMismatchPassword = errors.New("password and passwordConf does not match")
 
 // User represents a user account in the database
 type User struct {
-	ID        int64  `json:"id"`
-	Username  string `json:"username"`
-	PassHash  []byte `json:"-"` // never JSON encoded/decoded
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	ID          int64  `json:"id"`
+	Username    string `json:"username"`
+	PassHash    []byte `json:"-"` // never JSON encoded/decoded
+	FirstName   string `json:"firstName,omitempty"`
+	LastName    string `json:"lastName,omitempty"`
+	IsTemporary bool   `json:"IsTemporary"`
 }
 
 // Credentials represents user sign-in credentials
@@ -31,8 +32,8 @@ type Credentials struct {
 
 // Updates represents allowed updates to a user profile
 type Updates struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	FirstName *string `json:"firstName"`
+	LastName  *string `json:"lastName"`
 }
 
 // NewUser represents a new user signing up for an account
@@ -42,6 +43,7 @@ type NewUser struct {
 	PasswordConf string `json:"passwordConf"`
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`
+	IsTemporary  bool   `json:"IsTemporary"`
 }
 
 // Validate validates the new user and returns an error if
@@ -65,9 +67,10 @@ func (nu *NewUser) ToUser() (*User, error) {
 		return nil, err
 	}
 	user := &User{
-		Username:  nu.Username,
-		FirstName: nu.FirstName,
-		LastName:  nu.LastName,
+		Username:    nu.Username,
+		FirstName:   nu.FirstName,
+		LastName:    nu.LastName,
+		IsTemporary: nu.IsTemporary,
 	}
 	user.SetPassword(nu.Password)
 	return user, nil
@@ -101,7 +104,11 @@ func (u *User) FullName() string {
 // ApplyUpdates applies the updates to the user. An error
 // is returned if the updates are invalid
 func (u *User) ApplyUpdates(updates *Updates) error {
-	u.FirstName = updates.FirstName
-	u.LastName = updates.LastName
+	if updates.FirstName != nil {
+		u.FirstName = *updates.FirstName
+	}
+	if updates.LastName != nil {
+		u.LastName = *updates.LastName
+	}
 	return nil
 }
