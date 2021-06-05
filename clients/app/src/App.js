@@ -22,7 +22,7 @@ import User from './pages/User/User'
 import './App.css';
 
 const NAV_ACTIVE_CLASS_NAME = "border-bottom border-3"
-const NAV_CLASS_NAME = "h4 p-3 text-decoration-none"
+const NAV_CLASS_NAME = "h4 px-3 py-2 text-decoration-none"
 
 export default function App() {
 	const [sessionState, setSessionState] = useState({
@@ -48,7 +48,7 @@ export default function App() {
 
 	return (
 		<Router>
-			<Nav className="p-3" user={sessionState.user} />
+			<Nav className="pt-3 pb-4" user={sessionState.user} />
 			<Switch>
 				<Route exact path="/">
 					<Home user={sessionState.user} todoList={sessionState.todoList} onChange={handleTodoListState} />
