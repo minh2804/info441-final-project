@@ -21,7 +21,7 @@ type User struct {
 	PassHash    []byte `json:"-"` // never JSON encoded/decoded
 	FirstName   string `json:"firstName,omitempty"`
 	LastName    string `json:"lastName,omitempty"`
-	IsTemporary bool   `json:"IsTemporary"`
+	IsTemporary bool   `json:"isTemporary"`
 }
 
 // Credentials represents user sign-in credentials
@@ -43,7 +43,7 @@ type NewUser struct {
 	PasswordConf string `json:"passwordConf"`
 	FirstName    string `json:"firstName"`
 	LastName     string `json:"lastName"`
-	IsTemporary  bool   `json:"IsTemporary"`
+	IsTemporary  bool   `json:"isTemporary"`
 }
 
 // Validate validates the new user and returns an error if

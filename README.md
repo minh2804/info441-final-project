@@ -12,18 +12,18 @@ As developers, we want to develop an application that serves our target audience
 
 | Priority | User                                    | Description                                                                                                                       |
 | -------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| P0       | As a logged in and non-logged in user   | I want to create a shareable link of my current todo list and share it with other. people.                                        |
+| P0       | As a logged in user                     | I want to create a shareable link of my current todo list and share it with other. people, including non-logged in user.          |
 | P1       | As a logged in and non-logged recipient | I want to use the shared link to append the shared tasks to my own todo. list.                                                    |
 | P2       | As a non-logged in user                 | I want to create a bunch of tasks/reminders and have the data persists until I close my browser or lost track of my session's id. |
 | P3       | As a logged in user                     | I want to be able to view my stats (items completed all time, completion rate).                                                   |
 
 ## Implementation Strategy
 
-P0: The sender can create a shareable link using the following resource path: ```/tasks/import/{userID}```. For logged in user, the ```userID``` is their account's id. For non-logged in user, when they send a request without a session or 'Authorization' header, a temporary account and new session will be created. The ```userID``` for the non-logged in user is their temporary account's id. Both regular and temporary accounts are stored in ***MySQL*** database, and sessions are stored in ***Redis*** database.
+P0: The logged-in sender can create a shareable link using the following resource path: ```/tasks/import/{userID}```. The ```userID``` is their account's id stored in the ***MySQL*** database.
 
 P1: The recipient can click on the ```/tasks/import/{userID}``` link and it will append the requested user's todo list to the recipient's todo list. Tasks marked as hidden by the owner/requested user will not show up in the recipient's todo list.
 
-P2: If the user is not logged in, we will create a temporary account with the username and password set to the session's id. This temporary account has limited function, and will only persist until we clean up the database or the user lost track of their session's id.
+P2: If the user is not logged in, a temporary account will be created with the username and password set to the session's id. This temporary account has limited function, and will only persist until we clean up the database or the user lost track of their session's id.
 
 P3: The user can follow the resource path: ```/stats```, to view their computed statistic of their todo list's performance. The data will be pulled from the ***MySQL*** database and computation will be done on the front-end with ***JavaScript*** and ***React***.
 
